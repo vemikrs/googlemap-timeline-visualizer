@@ -1,0 +1,64 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "pnpm build",
+      "problemMatcher": ["$tsc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "preview",
+      "type": "shell",
+      "command": "pnpm preview",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "dependsOn": ["build"]
+    },
+    {
+      "label": "install",
+      "type": "shell",
+      "command": "pnpm install",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "type-check",
+      "type": "shell",
+      "command": "tsc --noEmit",
+      "problemMatcher": ["$tsc"],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}
