@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Trash2 } from 'lucide-react';
+import { ChevronDown, Trash2, Eye, EyeOff } from 'lucide-react';
 import type { MapTheme } from '../types';
 
 interface SettingsModalProps {
@@ -12,6 +12,8 @@ interface SettingsModalProps {
   mapTheme: MapTheme;
   onThemeChange: (theme: MapTheme) => void;
   onReset: () => void;
+  showCoordinates?: boolean;
+  onCoordinatesToggle?: (show: boolean) => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -24,6 +26,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   mapTheme,
   onThemeChange,
   onReset,
+  showCoordinates = false,
+  onCoordinatesToggle,
 }) => {
   if (!isOpen) return null;
 
@@ -41,6 +45,35 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Scrollable Content with Custom Scrollbar */}
         <div className="overflow-y-auto flex-1 px-5 py-4 custom-scrollbar">
           <div className="space-y-4 text-sm font-medium">
+          
+          {/* Coordinates Toggle */}
+          {onCoordinatesToggle && (
+            <div className="space-y-2">
+              <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+                プライバシー設定
+              </label>
+              <button
+                onClick={() => onCoordinatesToggle(!showCoordinates)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${
+                  showCoordinates
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  {showCoordinates ? <Eye size={16} /> : <EyeOff size={16} />}
+                  緯度経度を表示
+                </span>
+                <span className="text-[10px] font-black uppercase">
+                  {showCoordinates ? 'ON' : 'OFF'}
+                </span>
+              </button>
+              <p className="text-[9px] text-gray-400 px-1">
+                タイムスタンプに緯度経度を表示します（機微情報のため初期状態はOFF）
+              </p>
+            </div>
+          )}
+          
           {/* Year Selection */}
           <div className="space-y-3">
             <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">

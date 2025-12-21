@@ -12,10 +12,10 @@ const FocusButton: React.FC<FocusButtonProps> = ({ visible, onClick }) => {
   return (
     <button 
       onClick={onClick}
-      className="absolute right-4 top-1/2 -translate-y-1/2 z-[1000] bg-white p-4 rounded-full shadow-2xl border border-gray-100 text-blue-500 active:scale-90 transition-transform"
+      className="bg-white/95 backdrop-blur-xl w-10 h-10 rounded-lg shadow-lg border border-white/40 text-blue-500 active:scale-90 transition-all flex items-center justify-center"
       title="現在地にフォーカス"
     >
-      <Crosshair size={24} />
+      <Crosshair size={16} />
     </button>
   );
 };

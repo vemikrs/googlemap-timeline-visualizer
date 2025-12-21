@@ -3,9 +3,9 @@ import { MapIcon } from 'lucide-react';
 
 const Header: React.FC = () => {
   return (
-    <div className="bg-white/95 backdrop-blur-xl px-4 py-2.5 rounded-2xl shadow-xl border border-white/40 pointer-events-auto">
-      <h1 className="text-sm font-black text-gray-800 flex items-center gap-2 tracking-tight uppercase">
-        <MapIcon size={16} className="text-blue-500" />
+    <div className="bg-white/70 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md border border-white/30 pointer-events-auto">
+      <h1 className="text-xs font-semibold text-gray-500 flex items-center gap-1.5 tracking-tight uppercase opacity-80">
+        <MapIcon size={12} className="text-gray-400" />
         Timeline Tracker
       </h1>
     </div>

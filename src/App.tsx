@@ -7,6 +7,7 @@ import Header from './components/Header';
 import ControlButtons from './components/ControlButtons';
 import FocusButton from './components/FocusButton';
 import SettingsModal from './components/SettingsModal';
+import TimestampHeader from './components/TimestampHeader';
 import ControllerHUD from './components/ControllerHUD';
 
 /**
@@ -32,6 +33,7 @@ const App: React.FC = () => {
   const [mapTheme, setMapTheme] = useState<MapTheme>('light'); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isWideView, setIsWideView] = useState<boolean>(false);
+  const [showCoordinates, setShowCoordinates] = useState<boolean>(false);
 
   // --- Refs ---
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -255,18 +257,40 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden font-sans select-none">
       {/* Header UI */}
-      <div className="absolute top-4 left-4 right-4 z-[1000] flex justify-between items-center pointer-events-none">
+      <div className="absolute top-4 left-4 z-[1000] pointer-events-none">
         <Header />
-        <ControlButtons
-          isWideView={isWideView}
-          onToggleWideView={() => setIsWideView(!isWideView)}
-          onOpenSettings={() => setShowSettings(true)}
-        />
       </div>
 
-      <div ref={mapRef} className="flex-1 w-full h-full z-0" />
+      {/* Right Toolbox */}
+      {points.length > 0 && (
+        <div className="absolute top-1/2 -translate-y-1/2 right-3 z-[950] flex flex-col gap-1.5 pointer-events-auto">
+          <FocusButton visible={true} onClick={focusOnCurrent} />
+          <ControlButtons
+            isWideView={isWideView}
+            onToggleWideView={() => setIsWideView(!isWideView)}
+            onOpenSettings={() => setShowSettings(true)}
+          />
+        </div>
+      )}
 
-      <FocusButton visible={points.length > 0} onClick={focusOnCurrent} />
+      {/* Timestamp Display */}
+      {points.length > 0 && (
+        <TimestampHeader
+          currentPoint={points[currentIndex] || null}
+          currentIndex={currentIndex}
+          totalPoints={points.length}
+          selectedYear={
+            selectedYearStart === null || selectedYearEnd === null
+              ? 'all'
+              : selectedYearStart === selectedYearEnd
+              ? selectedYearStart.toString()
+              : `${selectedYearStart}-${selectedYearEnd}`
+          }
+          showCoordinates={showCoordinates}
+        />
+      )}
+
+      <div ref={mapRef} className="flex-1 w-full h-full z-0" />
 
       <SettingsModal
         isOpen={showSettings}
@@ -281,6 +305,8 @@ const App: React.FC = () => {
         mapTheme={mapTheme}
         onThemeChange={setMapTheme}
         onReset={handleReset}
+        showCoordinates={showCoordinates}
+        onCoordinatesToggle={setShowCoordinates}
       />
 
       <ControllerHUD
