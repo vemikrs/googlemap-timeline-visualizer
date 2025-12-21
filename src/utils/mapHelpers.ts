@@ -2,20 +2,20 @@ import type { MapTheme } from '../types';
 
 /**
  * Get tile layer URL based on theme
- * Uses internationalized tile servers with English labels for consistency
+ * Uses reliable tile servers with good availability
  */
 export const getTileLayerUrl = (theme: MapTheme): string => {
   switch (theme) {
     case 'dark':
-      // CartoDB Dark Matter - minimal labels, international (English-primary)
+      // CartoDB Dark Matter - minimal labels, dark theme
       return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
     case 'satellite':
       // ArcGIS satellite imagery (minimal labels)
       return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
     case 'light':
     default:
-      // Wikimedia OSM International - English labels with Japanese local names
-      return 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png';
+      // CartoDB Positron - clean, minimal, light gray design
+      return 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
   }
 };
 
