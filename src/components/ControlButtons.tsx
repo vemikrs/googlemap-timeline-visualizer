@@ -18,10 +18,10 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
         onClick={onToggleWideView}
         className={`flex items-center justify-center w-10 h-10 rounded-lg shadow-lg border transition-all ${
           isWideView 
-            ? 'bg-blue-500 text-white border-blue-600' 
-            : 'bg-white/95 text-gray-600 border-white/40'
+            ? 'bg-white/95 text-gray-600 border-white/40' 
+            : 'bg-blue-500 text-white border-blue-600'
         }`}
-        title={isWideView ? '追従モード' : '広域モード'}
+        title={isWideView ? '追従モードに切替' : '広域モードに切替'}
       >
         {isWideView ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
       </button>

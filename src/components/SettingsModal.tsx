@@ -5,10 +5,6 @@ import type { MapTheme } from '../types';
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedYearStart: number | null;
-  selectedYearEnd: number | null;
-  availableYears: number[];
-  onYearRangeChange: (start: number | null, end: number | null) => void;
   mapTheme: MapTheme;
   onThemeChange: (theme: MapTheme) => void;
   onReset: () => void;
@@ -19,10 +15,6 @@ interface SettingsModalProps {
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
-  selectedYearStart,
-  selectedYearEnd,
-  availableYears,
-  onYearRangeChange,
   mapTheme,
   onThemeChange,
   onReset,
@@ -41,178 +33,73 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <ChevronDown size={24} />
           </button>
         </div>
+
         
         {/* Scrollable Content with Custom Scrollbar */}
         <div className="overflow-y-auto flex-1 px-5 py-4 custom-scrollbar">
           <div className="space-y-4 text-sm font-medium">
           
-          {/* Coordinates Toggle */}
-          {onCoordinatesToggle && (
-            <div className="space-y-2">
-              <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-                プライバシー設定
-              </label>
-              <button
-                onClick={() => onCoordinatesToggle(!showCoordinates)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${
-                  showCoordinates
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md'
-                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  {showCoordinates ? <Eye size={16} /> : <EyeOff size={16} />}
-                  緯度経度を表示
-                </span>
-                <span className="text-[10px] font-black uppercase">
-                  {showCoordinates ? 'ON' : 'OFF'}
-                </span>
-              </button>
-              <p className="text-[9px] text-gray-400 px-1">
-                タイムスタンプに緯度経度を表示します（機微情報のため初期状態はOFF）
-              </p>
-            </div>
-          )}
-          
-          {/* Year Selection */}
-          <div className="space-y-3">
-            <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-              表示する年
-            </label>
-            
-            {/* Current Year Display - Compact */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100">
-              <div className="text-center">
-                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1">
-                  {selectedYearStart === null || selectedYearEnd === null ? 'すべての年' : '選択範囲'}
-                </p>
-                <p className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                  {selectedYearStart === null || selectedYearEnd === null
-                    ? 'ALL'
-                    : selectedYearStart === selectedYearEnd
-                    ? selectedYearStart
-                    : `${selectedYearStart} - ${selectedYearEnd}`}
-                </p>
-              </div>
-            </div>
-
-            {/* ALL Toggle Button - Compact */}
-            <button
-              onClick={() => onYearRangeChange(null, null)}
-              className={`w-full py-3 rounded-xl font-black text-xs transition-all ${
-                selectedYearStart === null || selectedYearEnd === null
-                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              {selectedYearStart === null || selectedYearEnd === null ? '✓ ' : ''}すべての年を表示
-            </button>
-
-            {/* Year Range Sliders - Compact */}
-            {availableYears.length > 0 && (
-              <div className="space-y-2.5">
-                {/* Start Year Slider */}
-                <div className="space-y-1">
-                  <div className="flex justify-between px-1">
-                    <span className="text-[10px] font-bold text-gray-500">開始年</span>
-                    <span className="text-xs font-bold text-blue-600">
-                      {selectedYearStart || availableYears[availableYears.length - 1]}
-                    </span>
-                  </div>
-                  <div className="relative px-1">
-                    <input
-                      type="range"
-                      min="0"
-                      max={availableYears.length - 1}
-                      value={selectedYearStart === null ? 0 : availableYears.length - 1 - availableYears.indexOf(selectedYearStart)}
-                      onChange={(e) => {
-                        const index = availableYears.length - 1 - parseInt(e.target.value);
-                        const year = availableYears[index];
-                        const endYear = selectedYearEnd || availableYears[0];
-                        onYearRangeChange(year, Math.max(year, endYear));
-                      }}
-                      className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                      style={{
-                        background: 'linear-gradient(to right, #3b82f6 0%, #6366f1 100%)'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* End Year Slider */}
-                <div className="space-y-1">
-                  <div className="flex justify-between px-1">
-                    <span className="text-[10px] font-bold text-gray-500">終了年</span>
-                    <span className="text-xs font-bold text-indigo-600">
-                      {selectedYearEnd || availableYears[0]}
-                    </span>
-                  </div>
-                  <div className="relative px-1">
-                    <input
-                      type="range"
-                      min="0"
-                      max={availableYears.length - 1}
-                      value={selectedYearEnd === null ? availableYears.length - 1 : availableYears.length - 1 - availableYears.indexOf(selectedYearEnd)}
-                      onChange={(e) => {
-                        const index = availableYears.length - 1 - parseInt(e.target.value);
-                        const year = availableYears[index];
-                        const startYear = selectedYearStart || availableYears[availableYears.length - 1];
-                        onYearRangeChange(Math.min(year, startYear), year);
-                      }}
-                      className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                      style={{
-                        background: 'linear-gradient(to right, #6366f1 0%, #8b5cf6 100%)'
-                      }}
-                    />
-                  </div>
-                </div>
-                
-                {/* Year Range Display */}
-                <div className="flex justify-between px-1">
-                  <span className="text-[10px] font-bold text-gray-400">
-                    {availableYears[availableYears.length - 1]}
-                  </span>
-                  <span className="text-[10px] font-bold text-gray-400">
-                    {availableYears[0]}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Theme Selection */}
-          <div className="space-y-2">
-            <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-              地図のスタイル
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(['light', 'dark', 'satellite'] as const).map(t => (
-                <button 
-                  key={t} 
-                  onClick={() => onThemeChange(t)} 
-                  className={`py-2.5 rounded-xl border text-[10px] font-black uppercase transition-all ${
-                    mapTheme === t 
-                      ? 'bg-blue-500 border-blue-500 text-white shadow-md' 
-                      : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+            {/* Coordinates Toggle */}
+            {onCoordinatesToggle && (
+              <div className="space-y-2">
+                <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+                  プライバシー設定
+                </label>
+                <button
+                  onClick={() => onCoordinatesToggle(!showCoordinates)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${
+                    showCoordinates
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  {t}
+                  <span className="flex items-center gap-2">
+                    {showCoordinates ? <Eye size={16} /> : <EyeOff size={16} />}
+                    緯度経度を表示
+                  </span>
+                  <span className="text-[10px] font-black uppercase">
+                    {showCoordinates ? 'ON' : 'OFF'}
+                  </span>
                 </button>
-              ))}
+                <p className="text-[9px] text-gray-400 px-1">
+                  タイムスタンプに緯度経度を表示します（機微情報のため初期状態はOFF）
+                </p>
+              </div>
+            )}
+          
+            {/* Theme Selection */}
+            <div className="space-y-2">
+              <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+                地図のスタイル
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['light', 'dark', 'satellite'] as const).map(t => (
+                  <button 
+                    key={t} 
+                    onClick={() => onThemeChange(t)} 
+                    className={`py-2.5 rounded-xl border text-[10px] font-black uppercase transition-all ${
+                      mapTheme === t 
+                        ? 'bg-blue-500 border-blue-500 text-white shadow-md' 
+                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Reset Button */}
+            <div className="pt-2 border-t border-gray-100">
+              <button 
+                onClick={onReset} 
+                className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-500 font-black rounded-xl text-xs hover:bg-red-100 transition-colors"
+              >
+                <Trash2 size={16} /> データをリセット
+              </button>
             </div>
           </div>
-
-          {/* Reset Button */}
-          <div className="pt-2 border-t border-gray-100">
-            <button 
-              onClick={onReset} 
-              className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-500 font-black rounded-xl text-xs hover:bg-red-100 transition-colors"
-            >
-              <Trash2 size={16} /> データをリセット
-            </button>
-          </div>
         </div>
-      </div>
       </div>
       
       {/* Custom Scrollbar Styles */}

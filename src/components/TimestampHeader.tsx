@@ -8,6 +8,7 @@ interface TimestampHeaderProps {
   totalPoints: number;
   selectedYear: string | 'all';
   showCoordinates?: boolean;
+  onYearFilterClick?: () => void;
 }
 
 const TimestampHeader: React.FC<TimestampHeaderProps> = ({
@@ -16,10 +17,11 @@ const TimestampHeader: React.FC<TimestampHeaderProps> = ({
   totalPoints,
   selectedYear,
   showCoordinates = false,
+  onYearFilterClick,
 }) => {
   return (
-    <div className="absolute top-16 left-4 right-4 z-[900] pointer-events-none">
-      <div className="rounded-3xl shadow-2xl border border-white/50 p-2 pointer-events-auto max-w-md mx-auto transition-all" style={{backgroundColor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)'}}>
+    <div className="absolute top-4 left-4 right-4 z-[900] pointer-events-none">
+      <div className="rounded-3xl shadow-2xl border border-white/50 p-2 pointer-events-auto max-w-md mx-auto transition-all cursor-pointer hover:shadow-xl hover:border-blue-300/60 active:scale-[0.98] hover:bg-white/60" style={{backgroundColor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)'}} onClick={onYearFilterClick}>
         {/* Header Row: Year Badge + Point Counter */}
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full" style={{background: 'linear-gradient(to right, rgba(59, 130, 246, 0.85), rgba(99, 102, 241, 0.85))'}}>
