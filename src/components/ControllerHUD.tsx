@@ -36,7 +36,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
 }) => {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-[1000] p-4 flex flex-col pointer-events-none pb-12">
-      <div className="bg-white/95 backdrop-blur-2xl rounded-[3rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.15)] border border-white/50 p-8 pointer-events-auto max-w-xl mx-auto w-full transition-all">
+      <div className="bg-white/95 backdrop-blur-xl rounded-[3rem] shadow-2xl border border-white/50 p-6 sm:p-8 pointer-events-auto max-w-xl mx-auto w-full transition-all">
         {points.length === 0 ? (
           <FileUploader
             isProcessing={isProcessing}
