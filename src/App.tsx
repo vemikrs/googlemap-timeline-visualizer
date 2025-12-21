@@ -21,13 +21,14 @@ const App: React.FC = () => {
   const [rawPoints, setRawPoints] = useState<Point[]>([]); 
   const [points, setPoints] = useState<Point[]>([]); 
   const [availableYears, setAvailableYears] = useState<number[]>([]);
-  const [selectedYear, setSelectedYear] = useState<string | 'all'>('all');
+  const [selectedYearStart, setSelectedYearStart] = useState<number | null>(null);
+  const [selectedYearEnd, setSelectedYearEnd] = useState<number | null>(null);
   
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(5); 
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const [samplingRate, setSamplingRate] = useState<number>(5); 
+  const [samplingRate] = useState<number>(5); 
   const [mapTheme, setMapTheme] = useState<MapTheme>('light'); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isWideView, setIsWideView] = useState<boolean>(false);
@@ -123,7 +124,10 @@ const App: React.FC = () => {
         
         const years = [...new Set(allPoints.filter(p => p.year > 2000).map(p => p.year))].sort((a, b) => b - a);
         setAvailableYears(years);
-        if (years.length > 0) setSelectedYear(years[0].toString());
+        if (years.length > 0) {
+          setSelectedYearStart(years[0]);
+          setSelectedYearEnd(years[0]);
+        }
       } catch (err) { 
         setErrorMsg((err as Error).message); 
       } finally { 
@@ -137,8 +141,8 @@ const App: React.FC = () => {
   // --- Filtering & Sampling ---
   useEffect(() => {
     let filtered = rawPoints;
-    if (selectedYear !== 'all') {
-      filtered = rawPoints.filter(p => p.year === parseInt(selectedYear));
+    if (selectedYearStart !== null && selectedYearEnd !== null) {
+      filtered = rawPoints.filter(p => p.year >= selectedYearStart && p.year <= selectedYearEnd);
     }
     
     const autoSampling = Math.max(1, Math.floor(filtered.length / 3000));
@@ -152,7 +156,7 @@ const App: React.FC = () => {
     if (sampled.length > 0 && mapInstance.current && !isWideView) {
       mapInstance.current.setView([sampled[0].lat, sampled[0].lng], 12);
     }
-  }, [rawPoints, selectedYear, samplingRate, isWideView]);
+  }, [rawPoints, selectedYearStart, selectedYearEnd, samplingRate, isWideView]);
 
   // --- Animation Loop ---
   useEffect(() => {
@@ -267,9 +271,13 @@ const App: React.FC = () => {
       <SettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
-        selectedYear={selectedYear}
+        selectedYearStart={selectedYearStart}
+        selectedYearEnd={selectedYearEnd}
         availableYears={availableYears}
-        onYearChange={setSelectedYear}
+        onYearRangeChange={(start, end) => {
+          setSelectedYearStart(start);
+          setSelectedYearEnd(end);
+        }}
         mapTheme={mapTheme}
         onThemeChange={setMapTheme}
         onReset={handleReset}
@@ -280,7 +288,13 @@ const App: React.FC = () => {
         currentIndex={currentIndex}
         isPlaying={isPlaying}
         playbackSpeed={playbackSpeed}
-        selectedYear={selectedYear}
+        selectedYear={
+          selectedYearStart === null || selectedYearEnd === null
+            ? 'all'
+            : selectedYearStart === selectedYearEnd
+            ? selectedYearStart.toString()
+            : `${selectedYearStart}-${selectedYearEnd}`
+        }
         isProcessing={isProcessing}
         progress={progress}
         errorMsg={errorMsg}
