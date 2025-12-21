@@ -29,7 +29,25 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
         <div className="text-center px-4">
           <h3 className="font-black text-2xl text-gray-800 tracking-tight">Timeline Visualizer</h3>
-          <p className="text-sm text-gray-400 mt-2 font-medium">ロケーション履歴JSONを選択してください</p>
+          <p className="text-sm text-gray-500 mt-2 font-medium">Google Mapタイムラインデータを可視化</p>
+          
+          {/* Export Instructions */}
+          <div className="mt-4 p-3 bg-blue-50 rounded-2xl border border-blue-100 text-left">
+            <p className="text-xs font-bold text-blue-600 mb-1.5">📍 データのエクスポート方法</p>
+            <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+              <li>Google Mapアプリを開く</li>
+              <li>「設定」→「位置情報とプライバシー」</li>
+              <li>「タイムライン データをエクスポート」を選択</li>
+              <li>エクスポートされたJSONファイルをアップロード</li>
+            </ol>
+          </div>
+          
+          {/* Privacy Notice */}
+          <div className="mt-3 p-2.5 bg-green-50 rounded-xl border border-green-100">
+            <p className="text-xs text-green-700 font-semibold">
+              🔒 プライバシー保護: 位置情報はブラウザ内でのみ処理され、サーバーには送信・保存されません
+            </p>
+          </div>
         </div>
         <label className="w-full">
           <input 
@@ -47,6 +65,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             {isProcessing ? <span>解析中 {progress}%</span> : 'ファイルを選択'}
           </div>
         </label>
+        
+        {/* Copyright */}
+        <p className="text-[10px] text-gray-400 font-medium mt-2">
+          © 2025 VEMI.jp - All Rights Reserved
+        </p>
       </div>
     </>
   );

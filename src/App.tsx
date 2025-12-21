@@ -334,6 +334,15 @@ const App: React.FC = () => {
         onSpeedChange={setPlaybackSpeed}
       />
 
+      {/* Copyright Footer */}
+      {points.length > 0 && (
+        <div className="absolute bottom-2 left-0 right-0 z-[999] pointer-events-none">
+          <p className="text-center text-[10px] text-gray-400 font-medium opacity-70">
+            © 2025 VEMI.jp
+          </p>
+        </div>
+      )}
+
       <style>{`
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); opacity: 0.8; } }
         .leaflet-container { background-color: #f8fafc; }
