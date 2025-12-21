@@ -1,5 +1,5 @@
 # robots.txt for Timeline Visualizer
-# https://gmap-timeline-visualizer.vemi.jp/
+# https://gmap-tlvr.vemi.jp/
 # Last updated: 2025-12-22
 
 # ===========================================
@@ -93,4 +93,4 @@ Allow: /
 # ===========================================
 # Sitemap location
 # ===========================================
-Sitemap: https://gmap-timeline-visualizer.vemi.jp/sitemap.xml
+Sitemap: https://gmap-tlvr.vemi.jp/sitemap.xml
