@@ -1,4 +1,4 @@
-# Timeline Tracker
+# Timeline Visualizer
 
 Google Maps のロケーション履歴を可視化するWebアプリケーション
 
