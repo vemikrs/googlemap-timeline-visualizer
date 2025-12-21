@@ -1,0 +1,96 @@
+# robots.txt for Timeline Visualizer
+# https://gmap-timeline-visualizer.vemi.jp/
+# Last updated: 2025-12-22
+
+# ===========================================
+# Welcome all search engines
+# ===========================================
+User-agent: *
+Allow: /
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+# Bing / Microsoft
+User-agent: Bingbot
+Allow: /
+
+User-agent: msnbot
+Allow: /
+
+# Yahoo
+User-agent: Slurp
+Allow: /
+
+# Yandex
+User-agent: Yandex
+Allow: /
+
+# Baidu
+User-agent: Baiduspider
+Allow: /
+
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+
+# ===========================================
+# Welcome AI Crawlers / LLM Training
+# ===========================================
+
+# OpenAI (ChatGPT, GPT-4, etc.)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Google AI (Gemini, Bard)
+User-agent: Google-Extended
+Allow: /
+
+# Anthropic (Claude)
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# Meta AI (LLaMA)
+User-agent: FacebookBot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Cohere
+User-agent: cohere-ai
+Allow: /
+
+# Amazon / Alexa
+User-agent: Amazonbot
+Allow: /
+
+# Apple (Siri, Spotlight)
+User-agent: Applebot
+Allow: /
+
+# Common Crawl (open dataset)
+User-agent: CCBot
+Allow: /
+
+# ===========================================
+# Sitemap location
+# ===========================================
+Sitemap: https://gmap-timeline-visualizer.vemi.jp/sitemap.xml

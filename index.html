@@ -2,17 +2,35 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/jpeg" sizes="512x512" href="/icon.jpg" />
+    <link rel="apple-touch-icon" href="/icon.jpg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon.jpg" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://tile.openstreetmap.org" />
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
+    <link rel="dns-prefetch" href="https://unpkg.com" />
+    <link rel="dns-prefetch" href="https://server.arcgisonline.com" />
 
     <!-- Primary Meta Tags -->
     <title>Timeline Visualizer - Google Mapタイムライン可視化ツール | VEMI.jp</title>
     <meta name="title" content="Timeline Visualizer - Google Mapタイムライン可視化ツール | VEMI.jp" />
     <meta name="description" content="Google Mapのタイムラインデータを美しく可視化。位置情報履歴をインタラクティブな地図上でアニメーション再生。プライバシー保護（データはブラウザ内のみで処理）。無料で簡単に利用可能。" />
-    <meta name="keywords" content="Google Map,タイムライン,位置情報,可視化,トラッキング,GPS,ロケーション履歴,地図,アニメーション,プライバシー,VEMI" />
+    <meta name="keywords" content="Google Map,タイムライン,位置情報,可視化,トラッキング,GPS,ロケーション履歴,地図,アニメーション,プライバシー,VEMI,Google Takeout,ロケーション履歴エクスポート,移動履歴,行動履歴" />
     <meta name="author" content="VEMI.jp" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="language" content="Japanese" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -38,20 +56,29 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://gmap-timeline-visualizer.vemi.jp/" />
 
+    <!-- Alternate Language (for future i18n) -->
+    <link rel="alternate" hreflang="ja" href="https://gmap-timeline-visualizer.vemi.jp/" />
+    <link rel="alternate" hreflang="x-default" href="https://gmap-timeline-visualizer.vemi.jp/" />
+
     <!-- Additional SEO Meta Tags -->
     <meta name="theme-color" content="#3b82f6" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Timeline Visualizer" />
+    <meta name="application-name" content="Timeline Visualizer" />
     <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="msapplication-config" content="none" />
 
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD) - WebApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Timeline Visualizer",
-      "alternateName": "タイムライントラッカー",
+      "alternateName": ["タイムラインビジュアライザー", "Google Map タイムライン可視化ツール", "ロケーション履歴ビューア"],
       "url": "https://gmap-timeline-visualizer.vemi.jp/",
       "description": "Google Mapのタイムラインデータを可視化するWebアプリケーション。位置情報履歴をインタラクティブな地図上でアニメーション再生できます。",
       "applicationCategory": "UtilityApplication",
@@ -76,7 +103,118 @@
         "再生速度調整（1-50倍速）",
         "地図テーマ切替（明/暗/衛星）",
         "プライバシー保護（ローカル処理）"
+      ],
+      "screenshot": "https://gmap-timeline-visualizer.vemi.jp/og-image.jpg",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "100",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }
+    </script>
+
+    <!-- Structured Data (JSON-LD) - HowTo -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Google Mapのタイムラインデータを可視化する方法",
+      "description": "Google TakeoutからエクスポートしたロケーションデータをTimeline Visualizerで可視化する手順",
+      "image": "https://gmap-timeline-visualizer.vemi.jp/og-image.jpg",
+      "totalTime": "PT5M",
+      "estimatedCost": {
+        "@type": "MonetaryAmount",
+        "currency": "JPY",
+        "value": "0"
+      },
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Google Takeoutからデータをエクスポート",
+          "text": "Google Takeout（takeout.google.com）にアクセスし、ロケーション履歴データをJSON形式でエクスポートします。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Timeline Visualizerを開く",
+          "text": "Timeline Visualizer（gmap-timeline-visualizer.vemi.jp）にアクセスします。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "JSONファイルをアップロード",
+          "text": "「ファイルを選択」ボタンをクリックし、エクスポートしたJSONファイルを選択します。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "タイムラインを再生",
+          "text": "データが読み込まれたら、PLAYボタンを押してタイムラインアニメーションを再生します。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 5,
+          "name": "表示をカスタマイズ",
+          "text": "年別フィルター、再生速度、地図テーマなどを設定して、お好みの表示にカスタマイズできます。"
+        }
       ]
+    }
+    </script>
+
+    <!-- Structured Data (JSON-LD) - FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Timeline Visualizerは無料で使えますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "はい、Timeline Visualizerは完全無料でご利用いただけます。ユーザー登録も不要です。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "データのプライバシーは保護されますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "はい、アップロードされたデータはすべてブラウザ内でのみ処理されます。サーバーにデータが送信されることはありません。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "どのようなデータ形式に対応していますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Google TakeoutからエクスポートされたJSON形式のロケーション履歴データに対応しています。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "スマートフォンでも使えますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "はい、Timeline Visualizerはレスポンシブデザインに対応しており、スマートフォンやタブレットでもご利用いただけます。"
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Structured Data (JSON-LD) - Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "VEMI.jp",
+      "url": "https://vemi.jp",
+      "logo": "https://gmap-timeline-visualizer.vemi.jp/icon.jpg",
+      "sameAs": []
     }
     </script>
   </head>

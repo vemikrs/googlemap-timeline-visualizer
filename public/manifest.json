@@ -1,0 +1,36 @@
+{
+  "name": "Timeline Visualizer - Google Mapタイムライン可視化ツール",
+  "short_name": "Timeline Visualizer",
+  "description": "Google Mapのタイムラインデータを美しく可視化。位置情報履歴をインタラクティブな地図上でアニメーション再生。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["utilities", "navigation", "travel"],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "label": "Timeline Visualizer メイン画面"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
