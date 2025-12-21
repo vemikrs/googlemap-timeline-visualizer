@@ -2,6 +2,7 @@ import React from 'react';
 import FileUploader from './FileUploader';
 import TimelineControls from './TimelineControls';
 import Header from './Header';
+import ControlButtons from './ControlButtons';
 import type { Point } from '../types';
 
 interface ControllerHUDProps {
@@ -18,6 +19,10 @@ interface ControllerHUDProps {
   onReset: () => void;
   onSeek: (index: number) => void;
   onSpeedChange: (speed: number) => void;
+  isWideView: boolean;
+  onToggleWideView: () => void;
+  onOpenSettings: () => void;
+  onFocusCurrent: () => void;
 }
 
 const ControllerHUD: React.FC<ControllerHUDProps> = ({
@@ -34,13 +39,25 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
   onReset,
   onSeek,
   onSpeedChange,
+  isWideView,
+  onToggleWideView,
+  onOpenSettings,
+  onFocusCurrent,
 }) => {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-[1000] p-2 sm:p-3 flex flex-col pointer-events-none pb-6">
-      {/* Header above HUD */}
+      {/* Top Row: Header + Control Buttons */}
       {points.length > 0 && (
-        <div className="mb-2 ml-2 self-start">
+        <div className="mb-2 flex items-end justify-between px-2">
           <Header />
+          <div className="pointer-events-auto">
+            <ControlButtons
+              isWideView={isWideView}
+              onToggleWideView={onToggleWideView}
+              onOpenSettings={onOpenSettings}
+              onFocusCurrent={onFocusCurrent}
+            />
+          </div>
         </div>
       )}
       

@@ -3,8 +3,6 @@ import type { Map as LeafletMap, Polyline, Marker } from 'leaflet';
 import type { Point, MapTheme } from './types';
 import { processData } from './utils/dataProcessor';
 import { loadLeaflet, getTileLayerUrl } from './utils/mapHelpers';
-import ControlButtons from './components/ControlButtons';
-import FocusButton from './components/FocusButton';
 import SettingsModal from './components/SettingsModal';
 import YearFilterModal from './components/YearFilterModal';
 import TimestampHeader from './components/TimestampHeader';
@@ -52,8 +50,14 @@ const App: React.FC = () => {
       const L = window.L;
       mapInstance.current = L.map(mapRef.current, { 
         zoomControl: false, 
-        preferCanvas: true 
+        preferCanvas: true,
+        attributionControl: false
       }).setView([36.2048, 138.2529], 5);
+      
+      // Add simple text-only attribution
+      L.control.attribution({
+        prefix: '<a href="https://leafletjs.com" target="_blank">Leaflet</a>'
+      }).addTo(mapInstance.current);
       
       updateTileLayer();
     }).catch(err => {
@@ -257,18 +261,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden font-sans select-none">
-      {/* Right Toolbox */}
-      {points.length > 0 && (
-        <div className="absolute top-1/2 -translate-y-1/2 right-3 z-[950] flex flex-col gap-1.5 pointer-events-auto">
-          <FocusButton visible={true} onClick={focusOnCurrent} />
-          <ControlButtons
-            isWideView={isWideView}
-            onToggleWideView={() => setIsWideView(!isWideView)}
-            onOpenSettings={() => setShowSettings(true)}
-          />
-        </div>
-      )}
-
       {/* Timestamp Display */}
       {points.length > 0 && (
         <TimestampHeader
@@ -334,6 +326,10 @@ const App: React.FC = () => {
         }}
         onSeek={handleSeek}
         onSpeedChange={setPlaybackSpeed}
+        isWideView={isWideView}
+        onToggleWideView={() => setIsWideView(!isWideView)}
+        onOpenSettings={() => setShowSettings(true)}
+        onFocusCurrent={focusOnCurrent}
       />
 
       {/* Copyright Footer */}
@@ -350,6 +346,7 @@ const App: React.FC = () => {
         .leaflet-container { background-color: #f8fafc; }
         input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 32px; height: 32px; background: #3b82f6; border: 6px solid white; border-radius: 50%; shadow: 0 10px 30px rgba(59, 130, 246, 0.4); }
         .custom-div-icon { background: transparent !important; border: none !important; }
+        .leaflet-control-attribution { font-size: 10px !important; background: rgba(255, 255, 255, 0.7) !important; padding: 2px 5px !important; }
       `}</style>
     </div>
   );
