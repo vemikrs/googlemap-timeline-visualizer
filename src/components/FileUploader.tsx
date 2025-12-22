@@ -32,14 +32,32 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           <p className="text-sm text-gray-500 mt-2 font-medium">Google Mapタイムラインデータを可視化</p>
           
           {/* Export Instructions */}
-          <div className="mt-4 p-3 bg-blue-50 rounded-2xl border border-blue-100 text-left">
-            <p className="text-xs font-bold text-blue-600 mb-1.5">📍 データのエクスポート方法</p>
-            <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
-              <li>Google Mapアプリを開く</li>
-              <li>「設定」→「位置情報とプライバシー」</li>
-              <li>「タイムライン データをエクスポート」を選択</li>
-              <li>エクスポートされたJSONファイルをアップロード</li>
-            </ol>
+          <div className="mt-4 p-4 bg-blue-50 rounded-2xl border border-blue-100 text-left">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-bold text-blue-700">📍 データのエクスポート方法</p>
+              <a 
+                href="https://support.google.com/maps/answer/6258979?hl=ja" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-blue-500 underline hover:text-blue-700"
+              >
+                公式ヘルプを見る ↗
+              </a>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                <p className="text-xs font-bold text-gray-700 mb-1">📱 スマホアプリから（必須）</p>
+                <ol className="text-xs text-gray-600 space-y-1.5 list-decimal list-inside leading-relaxed">
+                  <li>Googleマップアプリを開く</li>
+                  <li>右上の<span className="font-bold bg-gray-100 px-1 rounded">プロフィールアイコン</span>をタップ</li>
+                  <li>メニューから<span className="font-bold bg-gray-100 px-1 rounded">「設定」</span>を選択</li>
+                  <li><span className="font-bold bg-gray-100 px-1 rounded">「個人的なコンテンツ」</span>を選択</li>
+                  <li><span className="font-bold bg-gray-100 px-1 rounded">「タイムライン データをエクスポート」</span>をタップ</li>
+                  <li>保存された <span className="font-bold text-blue-600">location-history.json</span> をここで選択</li>
+                </ol>
+              </div>
+            </div>
           </div>
           
           {/* Privacy Notice */}
