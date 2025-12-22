@@ -7,6 +7,10 @@ import SettingsModal from './components/SettingsModal';
 import YearFilterModal from './components/YearFilterModal';
 import TimestampHeader from './components/TimestampHeader';
 import ControllerHUD from './components/ControllerHUD';
+import FFmpegDownloadModal from './components/FFmpegDownloadModal';
+import RecordingOverlay from './components/RecordingOverlay';
+import ExportModal from './components/ExportModal';
+import { useVideoRecorder } from './hooks/useVideoRecorder';
 
 /**
  * Google Maps Timeline Visualizer (Location History JSON Optimized)
@@ -37,10 +41,20 @@ const App: React.FC = () => {
 
   // --- Refs ---
   const mapRef = useRef<HTMLDivElement | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<LeafletMap | null>(null);
   const polylineRef = useRef<Polyline | null>(null);
   const markerRef = useRef<Marker | null>(null);
   const animationRef = useRef<number | null>(null);
+
+  // --- Video Recorder ---
+  const recorder = useVideoRecorder({
+    targetRef: mapContainerRef,
+    fps: 10,
+    maxDuration: 30,
+    resolution: 0.6,
+    format: 'mp4',
+  });
 
   // --- Map Initialization ---
   useEffect(() => {
@@ -85,7 +99,8 @@ const App: React.FC = () => {
     
     const url = getTileLayerUrl(mapTheme);
     L.tileLayer(url, { 
-      attribution: '&copy; OpenStreetMap' 
+      attribution: '&copy; OpenStreetMap',
+      crossOrigin: 'anonymous'  // CORS対応：録画機能で必要
     }).addTo(mapInstance.current);
   };
 
@@ -338,28 +353,103 @@ const App: React.FC = () => {
     setCurrentIndex(index);
   };
 
+  // --- Recording Handlers ---
+  const pendingRecordingRef = useRef(false);
+  
+  const handleRecordClick = () => {
+    if (recorder.status === 'recording') {
+      recorder.stopRecording();
+    } else if (recorder.status === 'ready') {
+      // 最後の位置にいる場合は最初に戻してから録画開始
+      if (currentIndex >= points.length - 1) {
+        setCurrentIndex(0);
+        setTimeout(() => {
+          recorder.startRecording();
+          setIsPlaying(true);
+        }, 100);
+      } else {
+        recorder.startRecording();
+        // 録画開始と同時に再生も開始
+        if (!isPlaying) {
+          setIsPlaying(true);
+        }
+      }
+    } else {
+      // ダウンロードが必要な場合、完了後に録画開始フラグを立てる
+      pendingRecordingRef.current = true;
+      recorder.requestRecording();
+    }
+  };
+
+  // ダウンロード完了後、自動的に録画を開始
+  useEffect(() => {
+    if (recorder.status === 'ready' && pendingRecordingRef.current && points.length > 0) {
+      pendingRecordingRef.current = false;
+      // 少し遅延を入れてUIが更新されてから開始
+      const timer = setTimeout(() => {
+        // 最後の位置にいる場合は最初に戻す
+        if (currentIndex >= points.length - 1) {
+          setCurrentIndex(0);
+          setTimeout(() => {
+            recorder.startRecording();
+            setIsPlaying(true);
+          }, 100);
+        } else {
+          recorder.startRecording();
+          if (!isPlaying) {
+            setIsPlaying(true);
+          }
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [recorder.status]);
+
+  // 録画中に再生が終了したら録画も停止
+  useEffect(() => {
+    if (recorder.status === 'recording' && !isPlaying && currentIndex >= points.length - 1) {
+      recorder.stopRecording();
+    }
+  }, [isPlaying, currentIndex, points.length, recorder.status]);
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden font-sans select-none">
-      {/* Timestamp Display */}
-      {points.length > 0 && (
-        <TimestampHeader
-          currentPoint={points[currentIndex] || null}
-          currentIndex={currentIndex}
-          totalPoints={points.length}
-          selectedYear={
-            selectedYearStart === null || selectedYearEnd === null
-              ? 'all'
-              : selectedYearStart === selectedYearEnd
-              ? selectedYearStart.toString()
-              : `${selectedYearStart}-${selectedYearEnd}`
-          }
-          showCoordinates={showCoordinates}
-          onYearFilterClick={() => setShowYearFilter(true)}
-          showInitialHint={showInitialHints}
-        />
-      )}
+      {/* Recording Container - includes header and map */}
+      <div ref={mapContainerRef} className="relative flex-1 w-full h-full flex flex-col">
+        {/* Timestamp Display - included in recording */}
+        {points.length > 0 && (
+          <TimestampHeader
+            currentPoint={points[currentIndex] || null}
+            currentIndex={currentIndex}
+            totalPoints={points.length}
+            selectedYear={
+              selectedYearStart === null || selectedYearEnd === null
+                ? 'all'
+                : selectedYearStart === selectedYearEnd
+                ? selectedYearStart.toString()
+                : `${selectedYearStart}-${selectedYearEnd}`
+            }
+            showCoordinates={showCoordinates}
+            onYearFilterClick={() => setShowYearFilter(true)}
+            showInitialHint={showInitialHints}
+          />
+        )}
 
-      <div ref={mapRef} className="flex-1 w-full h-full z-0" />
+        {/* Map Container */}
+        <div ref={mapRef} className="flex-1 relative z-0" />
+        
+        {/* Recording Overlay */}
+        <RecordingOverlay
+          isRecording={recorder.status === 'recording'}
+          isProcessing={recorder.status === 'processing'}
+          elapsedTime={recorder.elapsedTime}
+          maxDuration={30}
+          frameCount={recorder.frameCount}
+          processingProgress={recorder.processingProgress}
+          onStop={recorder.stopRecording}
+          onCancel={recorder.cancelRecording}
+        />
+      </div>
 
       <YearFilterModal
         isOpen={showYearFilter}
@@ -408,7 +498,29 @@ const App: React.FC = () => {
         onFocusCurrent={focusOnCurrent}
         onBackToUpload={handleBackToUpload}
         onShare={handleShare}
+        onRecord={handleRecordClick}
+        isRecording={recorder.status === 'recording'}
         showInitialHints={showInitialHints}
+      />
+
+      {/* FFmpeg Download Modal */}
+      <FFmpegDownloadModal
+        isOpen={recorder.status === 'need-download'}
+        onClose={recorder.cancelDownload}
+        onConfirm={recorder.confirmDownload}
+        isDownloading={recorder.downloadPhase !== 'confirm'}
+        downloadProgress={recorder.downloadProgress}
+        phase={recorder.downloadPhase}
+      />
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={recorder.status === 'done'}
+        outputBlob={recorder.outputBlob}
+        format="mp4"
+        onClose={recorder.reset}
+        onDownload={recorder.downloadVideo}
+        onShare={recorder.shareVideo}
       />
 
       {/* Copyright Footer */}

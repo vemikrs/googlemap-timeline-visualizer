@@ -20,8 +20,18 @@ const YearFilterModal: React.FC<YearFilterModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // クリックがオーバーレイ自体（ダイアログの外）の場合のみ閉じる
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="absolute inset-0 z-[2000] bg-black/40 flex items-center justify-center p-3 sm:p-6 animate-in fade-in backdrop-blur-md">
+    <div 
+      className="absolute inset-0 z-[2000] bg-black/40 flex items-center justify-center p-3 sm:p-6 animate-in fade-in backdrop-blur-md"
+      onClick={handleBackdropClick}
+    >
       <div className="bg-white w-full max-w-sm rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Fixed Header */}
         <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100 shrink-0">

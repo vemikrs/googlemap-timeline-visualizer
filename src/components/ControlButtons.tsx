@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2 } from 'lucide-react';
+import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2, Video } from 'lucide-react';
 
 interface ControlButtonsProps {
   isWideView: boolean;
@@ -7,6 +7,8 @@ interface ControlButtonsProps {
   onOpenSettings: () => void;
   onFocusCurrent: () => void;
   onShare?: () => void;
+  onRecord?: () => void;
+  isRecording?: boolean;
   showInitialMenu?: boolean;
 }
 
@@ -16,6 +18,8 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
   onOpenSettings,
   onFocusCurrent,
   onShare,
+  onRecord,
+  isRecording = false,
   showInitialMenu = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,6 +39,27 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
       {/* Expanded Buttons - Appear Above Toggle */}
       {isExpanded && (
         <div className="absolute bottom-12 left-0 w-10 flex flex-col gap-1.5 animate-in slide-in-from-bottom-2 duration-200">
+          {/* Record Button */}
+          {onRecord && (
+            <button 
+              onClick={() => {
+                onRecord();
+                setIsExpanded(false);
+              }}
+              className={`w-10 h-10 rounded-xl shadow-lg border active:scale-95 transition-all flex items-center justify-center relative ${
+                isRecording
+                  ? 'bg-red-500 hover:bg-red-600 text-white border-red-600/50'
+                  : 'bg-gradient-to-br from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100 text-red-500 border-red-200/50'
+              }`}
+              title={isRecording ? '録画中' : '録画'}
+            >
+              {isRecording && (
+                <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full animate-pulse" />
+              )}
+              <Video size={18} />
+            </button>
+          )}
+
           {/* Share Button (Mobile) */}
           {canShare && onShare && (
             <button 

@@ -24,6 +24,8 @@ interface ControllerHUDProps {
   onFocusCurrent: () => void;
   onBackToUpload: () => void;
   onShare?: () => void;
+  onRecord?: () => void;
+  isRecording?: boolean;
   showInitialHints?: boolean;
 }
 
@@ -46,6 +48,8 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
   onFocusCurrent,
   onBackToUpload,
   onShare,
+  onRecord,
+  isRecording = false,
   showInitialHints = false,
 }) => {
   return (
@@ -61,6 +65,8 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
               onOpenSettings={onOpenSettings}
               onFocusCurrent={onFocusCurrent}
               onShare={onShare}
+              onRecord={onRecord}
+              isRecording={isRecording}
               showInitialMenu={showInitialHints}
             />
           </div>
