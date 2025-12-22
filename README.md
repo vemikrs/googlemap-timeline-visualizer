@@ -1,3 +1,7 @@
+![Screenshot](https://gmap-tlvr.vemi.jp/og-image.jpg)
+
+🌐 **[Live Demo](https://gmap-tlvr.vemi.jp/)**
+
 # Timeline Visualizer
 
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -6,11 +10,6 @@
 [![Vite](https://img.shields.io/badge/Vite-7-646cff.svg)](https://vite.dev/)
 
 > Google Maps のロケーション履歴を可視化・動画エクスポートするWebアプリケーション
-
-![Screenshot](https://gmap-tlvr.vemi.jp/og-image.jpg)
-
-🌐 **[Live Demo](https://gmap-tlvr.vemi.jp/)**
-
 
 ## ✨ 機能
 
