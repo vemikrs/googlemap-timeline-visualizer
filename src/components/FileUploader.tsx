@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, AlertCircle, HelpCircle } from 'lucide-react';
+import { Upload, AlertCircle, HelpCircle, Play } from 'lucide-react';
 
 interface FileUploaderProps {
   isProcessing: boolean;
@@ -7,6 +7,8 @@ interface FileUploaderProps {
   errorMsg: string | null;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onOpenHelp?: () => void;
+  onLoadDemo?: () => void;
+  isDemoLoading?: boolean;
 }
 
 const FileUploader: React.FC<FileUploaderProps> = ({
@@ -15,6 +17,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   errorMsg,
   onFileUpload,
   onOpenHelp,
+  onLoadDemo,
+  isDemoLoading,
 }) => {
   return (
     <>
@@ -74,16 +78,32 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             accept=".json,.geojson" 
             onChange={onFileUpload} 
             className="hidden" 
-            disabled={isProcessing} 
+            disabled={isProcessing || isDemoLoading} 
           />
           <div className={`w-full font-black py-4 sm:py-5 rounded-2xl flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base ${
-            isProcessing 
+            isProcessing || isDemoLoading
               ? 'bg-gray-100 text-gray-400' 
               : 'bg-blue-500 text-white shadow-blue-200'
           }`}>
-            {isProcessing ? <span>解析中 {progress}%</span> : 'ファイルを選択'}
+            {isProcessing ? <span>解析中 {progress}%</span> : isDemoLoading ? <span>デモデータ読込中...</span> : 'ファイルを選択'}
           </div>
         </label>
+        
+        {/* Demo Button */}
+        {onLoadDemo && (
+          <button
+            onClick={onLoadDemo}
+            disabled={isProcessing || isDemoLoading}
+            className={`w-full font-bold py-3 sm:py-4 rounded-2xl flex items-center justify-center gap-2 text-sm sm:text-base transition-all ${
+              isProcessing || isDemoLoading
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-200 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+            }`}
+          >
+            <Play size={18} fill="currentColor" />
+            <span>デモを試す</span>
+          </button>
+        )}
         
         {/* Footer with Copyright and Help */}
         <div className="flex items-center justify-between w-full px-1 mt-1">

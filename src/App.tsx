@@ -43,6 +43,7 @@ const App: React.FC = () => {
   const [showYearFilter, setShowYearFilter] = useState<boolean>(false);
   const [showInitialHints, setShowInitialHints] = useState<boolean>(false);
   const [showHelp, setShowHelp] = useState<boolean>(false);
+  const [isDemoLoading, setIsDemoLoading] = useState<boolean>(false);
   
   // Privacy Level State
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevelId>('none');
@@ -174,6 +175,75 @@ const App: React.FC = () => {
     };
     reader.readAsText(file);
   };
+
+  // --- Demo Mode Handler ---
+  const handleLoadDemo = async () => {
+    setIsDemoLoading(true);
+    setErrorMsg(null);
+    setProgress(5);
+    
+    try {
+      let json: any;
+      
+      // DecompressionStreamがサポートされているか確認
+      const supportsDecompression = typeof DecompressionStream !== 'undefined';
+      
+      if (supportsDecompression) {
+        // 圧縮版を読み込み（gzip、拡張子は.binで配信）
+        const response = await fetch('/demo-location-history.bin');
+        if (!response.ok) {
+          throw new Error('デモデータの読み込みに失敗しました');
+        }
+        setProgress(20);
+        
+        // gzip解凍
+        const compressedData = await response.arrayBuffer();
+        setProgress(30);
+        
+        const decompressedStream = new Response(compressedData).body!.pipeThrough(
+          new DecompressionStream('gzip')
+        );
+        const decompressedResponse = new Response(decompressedStream);
+        json = await decompressedResponse.json();
+      } else {
+        // フォールバック: 非圧縮版を読み込み
+        const response = await fetch('/demo-location-history.json');
+        if (!response.ok) {
+          throw new Error('デモデータの読み込みに失敗しました');
+        }
+        setProgress(30);
+        json = await response.json();
+      }
+      setProgress(50);
+      
+      const allPoints = await processData(json, (p) => setProgress(50 + p * 0.5));
+      setRawPoints(allPoints);
+      
+      const years = [...new Set(allPoints.filter(p => p.year > 2000).map(p => p.year))].sort((a, b) => b - a);
+      setAvailableYears(years);
+      if (years.length > 0) {
+        setSelectedYearStart(years[0]);
+        setSelectedYearEnd(years[0]);
+      }
+      
+      // 初回ヒントを表示
+      setShowInitialHints(true);
+      setTimeout(() => setShowInitialHints(false), 5000);
+    } catch (err) {
+      setErrorMsg((err as Error).message);
+    } finally {
+      setIsDemoLoading(false);
+      setProgress(100);
+    }
+  };
+
+  // --- URL Parameter Demo Mode ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') === 'true') {
+      handleLoadDemo();
+    }
+  }, []);
 
   // --- Filtering & Sampling ---
   useEffect(() => {
@@ -532,6 +602,8 @@ const App: React.FC = () => {
         showInitialHints={showInitialHints}
         privacyLevel={privacyLevel}
         onOpenPrivacySettings={() => setShowPrivacyModal(true)}
+        onLoadDemo={handleLoadDemo}
+        isDemoLoading={isDemoLoading}
       />
 
       {/* FFmpeg Download Modal */}

@@ -30,6 +30,8 @@ interface ControllerHUDProps {
   showInitialHints?: boolean;
   privacyLevel?: PrivacyLevelId;
   onOpenPrivacySettings?: () => void;
+  onLoadDemo?: () => void;
+  isDemoLoading?: boolean;
 }
 
 const ControllerHUD: React.FC<ControllerHUDProps> = ({
@@ -57,6 +59,8 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
   showInitialHints = false,
   privacyLevel = 'none',
   onOpenPrivacySettings,
+  onLoadDemo,
+  isDemoLoading = false,
 }) => {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-[1000] p-2 sm:p-3 flex flex-col pointer-events-none pb-6">
@@ -90,6 +94,8 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
             errorMsg={errorMsg}
             onFileUpload={onFileUpload}
             onOpenHelp={onOpenHelp}
+            onLoadDemo={onLoadDemo}
+            isDemoLoading={isDemoLoading}
           />
         ) : (
           <TimelineControls
