@@ -1,6 +1,6 @@
 {
   "name": "timeline-tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Google Maps Timeline Visualizer",
   "type": "module",
   "scripts": {
@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "0.12.15",
+    "@ffmpeg/util": "0.12.2",
+    "html2canvas": "1.4.1",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
