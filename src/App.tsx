@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Map as LeafletMap, Polyline, Marker } from 'leaflet';
-import type { Point, MapTheme } from './types';
+import type { Point, MapTheme, PrivacyLevelId } from './types';
+import { obfuscatePoints, PRIVACY_LEVELS } from './types';
 import { processData } from './utils/dataProcessor';
 import { loadLeaflet, getTileLayerUrl } from './utils/mapHelpers';
 import SettingsModal from './components/SettingsModal';
@@ -11,6 +12,8 @@ import FFmpegDownloadModal from './components/FFmpegDownloadModal';
 import RecordingOverlay from './components/RecordingOverlay';
 import ExportModal from './components/ExportModal';
 import HelpModal from './components/HelpModal';
+import PrivacyLevelModal from './components/PrivacyLevelModal';
+import RecordingPrivacyPrompt from './components/RecordingPrivacyPrompt';
 import { useVideoRecorder } from './hooks/useVideoRecorder';
 
 /**
@@ -40,6 +43,11 @@ const App: React.FC = () => {
   const [showYearFilter, setShowYearFilter] = useState<boolean>(false);
   const [showInitialHints, setShowInitialHints] = useState<boolean>(false);
   const [showHelp, setShowHelp] = useState<boolean>(false);
+  
+  // Privacy Level State
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevelId>('none');
+  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
+  const [showRecordingPrivacyPrompt, setShowRecordingPrivacyPrompt] = useState<boolean>(false);
 
   // --- Refs ---
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -178,14 +186,18 @@ const App: React.FC = () => {
     const finalSampling = Math.max(samplingRate, autoSampling);
     const sampled = filtered.filter((_, idx) => idx % finalSampling === 0);
     
-    setPoints(sampled);
+    // Apply privacy obfuscation
+    const privacyLevelData = PRIVACY_LEVELS.find(l => l.id === privacyLevel);
+    const obfuscated = obfuscatePoints(sampled, privacyLevelData?.gridSize ?? 0);
+    
+    setPoints(obfuscated);
     setCurrentIndex(0);
     setIsPlaying(false);
     
-    if (sampled.length > 0 && mapInstance.current && !isWideView) {
-      mapInstance.current.setView([sampled[0].lat, sampled[0].lng], 12);
+    if (obfuscated.length > 0 && mapInstance.current && !isWideView) {
+      mapInstance.current.setView([obfuscated[0].lat, obfuscated[0].lng], 12);
     }
-  }, [rawPoints, selectedYearStart, selectedYearEnd, samplingRate, isWideView]);
+  }, [rawPoints, selectedYearStart, selectedYearEnd, samplingRate, isWideView, privacyLevel]);
 
   // --- Animation Loop ---
   useEffect(() => {
@@ -362,20 +374,8 @@ const App: React.FC = () => {
     if (recorder.status === 'recording') {
       recorder.stopRecording();
     } else if (recorder.status === 'ready') {
-      // 最後の位置にいる場合は最初に戻してから録画開始
-      if (currentIndex >= points.length - 1) {
-        setCurrentIndex(0);
-        setTimeout(() => {
-          recorder.startRecording();
-          setIsPlaying(true);
-        }, 100);
-      } else {
-        recorder.startRecording();
-        // 録画開始と同時に再生も開始
-        if (!isPlaying) {
-          setIsPlaying(true);
-        }
-      }
+      // 録画準備完了時はプライバシー確認プロンプトを表示
+      setShowRecordingPrivacyPrompt(true);
     } else {
       // ダウンロードが必要な場合、完了後に録画開始フラグを立てる
       pendingRecordingRef.current = true;
@@ -383,25 +383,31 @@ const App: React.FC = () => {
     }
   };
 
-  // ダウンロード完了後、自動的に録画を開始
+  const handleRecordingConfirm = () => {
+    setShowRecordingPrivacyPrompt(false);
+    // 最後の位置にいる場合は最初に戻してから録画開始
+    if (currentIndex >= points.length - 1) {
+      setCurrentIndex(0);
+      setTimeout(() => {
+        recorder.startRecording();
+        setIsPlaying(true);
+      }, 100);
+    } else {
+      recorder.startRecording();
+      // 録画開始と同時に再生も開始
+      if (!isPlaying) {
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  // ダウンロード完了後、自動的にプライバシー確認プロンプトを表示
   useEffect(() => {
     if (recorder.status === 'ready' && pendingRecordingRef.current && points.length > 0) {
       pendingRecordingRef.current = false;
       // 少し遅延を入れてUIが更新されてから開始
       const timer = setTimeout(() => {
-        // 最後の位置にいる場合は最初に戻す
-        if (currentIndex >= points.length - 1) {
-          setCurrentIndex(0);
-          setTimeout(() => {
-            recorder.startRecording();
-            setIsPlaying(true);
-          }, 100);
-        } else {
-          recorder.startRecording();
-          if (!isPlaying) {
-            setIsPlaying(true);
-          }
-        }
+        setShowRecordingPrivacyPrompt(true);
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -480,6 +486,21 @@ const App: React.FC = () => {
         onClose={() => setShowHelp(false)}
       />
 
+      <PrivacyLevelModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+        currentLevel={privacyLevel}
+        onLevelChange={setPrivacyLevel}
+      />
+
+      <RecordingPrivacyPrompt
+        isOpen={showRecordingPrivacyPrompt}
+        onClose={() => setShowRecordingPrivacyPrompt(false)}
+        currentLevel={privacyLevel}
+        onLevelChange={setPrivacyLevel}
+        onConfirm={handleRecordingConfirm}
+      />
+
       <ControllerHUD
         points={points}
         currentIndex={currentIndex}
@@ -509,6 +530,8 @@ const App: React.FC = () => {
         onRecord={handleRecordClick}
         isRecording={recorder.status === 'recording'}
         showInitialHints={showInitialHints}
+        privacyLevel={privacyLevel}
+        onOpenPrivacySettings={() => setShowPrivacyModal(true)}
       />
 
       {/* FFmpeg Download Modal */}

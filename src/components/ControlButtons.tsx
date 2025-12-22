@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2, Video, HelpCircle } from 'lucide-react';
+import PrivacyLevelButton from './PrivacyLevelButton';
+import type { PrivacyLevelId } from '../types';
 
 interface ControlButtonsProps {
   isWideView: boolean;
@@ -11,6 +13,8 @@ interface ControlButtonsProps {
   onRecord?: () => void;
   isRecording?: boolean;
   showInitialMenu?: boolean;
+  privacyLevel?: PrivacyLevelId;
+  onOpenPrivacySettings?: () => void;
 }
 
 const ControlButtons: React.FC<ControlButtonsProps> = ({
@@ -23,6 +27,8 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
   onRecord,
   isRecording = false,
   showInitialMenu = false,
+  privacyLevel = 'none',
+  onOpenPrivacySettings,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasShownInitial, setHasShownInitial] = useState(false);
@@ -127,6 +133,17 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
           >
             <HelpCircle size={18} />
           </button>
+
+          {/* Privacy Level Button */}
+          {onOpenPrivacySettings && (
+            <PrivacyLevelButton
+              currentLevel={privacyLevel}
+              onClick={() => {
+                onOpenPrivacySettings();
+                setIsExpanded(false);
+              }}
+            />
+          )}
         </div>
       )}
 

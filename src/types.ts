@@ -11,3 +11,17 @@ export interface ParsedCoords {
 }
 
 export type MapTheme = 'light' | 'dark' | 'satellite';
+
+// プライバシー関連の型を再エクスポート
+export type {
+  PrivacyLevel,
+  PrivacyLevelId,
+} from './utils/privacyObfuscator';
+
+export {
+  PRIVACY_LEVELS,
+  getPrivacyLevelById,
+  getPrivacyLevelByIndex,
+  obfuscatePoints,
+  obfuscatePointsByLevel,
+} from './utils/privacyObfuscator';
