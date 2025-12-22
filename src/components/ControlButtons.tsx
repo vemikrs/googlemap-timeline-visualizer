@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2, Video } from 'lucide-react';
+import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2, Video, HelpCircle } from 'lucide-react';
 
 interface ControlButtonsProps {
   isWideView: boolean;
   onToggleWideView: () => void;
   onOpenSettings: () => void;
+  onOpenHelp: () => void;
   onFocusCurrent: () => void;
   onShare?: () => void;
   onRecord?: () => void;
@@ -16,6 +17,7 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
   isWideView,
   onToggleWideView,
   onOpenSettings,
+  onOpenHelp,
   onFocusCurrent,
   onShare,
   onRecord,
@@ -112,6 +114,18 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
             title="設定"
           >
             <Settings size={18} />
+          </button>
+
+          {/* Help Button */}
+          <button 
+            onClick={() => {
+              onOpenHelp();
+              setIsExpanded(false);
+            }}
+            className="bg-gradient-to-br from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 w-10 h-10 rounded-xl shadow-lg border border-gray-200/50 text-gray-500 active:scale-95 transition-all flex items-center justify-center"
+            title="ヘルプ"
+          >
+            <HelpCircle size={18} />
           </button>
         </div>
       )}

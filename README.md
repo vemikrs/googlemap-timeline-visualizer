@@ -1,17 +1,52 @@
 # Timeline Visualizer
 
-Google Maps のロケーション履歴を可視化するWebアプリケーション
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff.svg)](https://vite.dev/)
 
-## 機能
+> Google Maps のロケーション履歴を可視化・動画エクスポートするWebアプリケーション
 
-- **位置情報の可視化**: Googleマップアプリからエクスポートしたロケーション履歴JSONファイルを読み込み、地図上にプロットします
-- **タイムライン再生**: 時系列で移動履歴を再生できます
-- **広域/追従モード**: 日本地図レベルの広域表示と、現在地追従モードを切り替え可能
-- **年別フィルター**: 特定の年の履歴のみを表示
-- **地図テーマ**: ライト/ダーク/衛星画像の3つのテーマから選択
-- **再生速度調整**: 1x〜50xまで再生速度を変更可能
+![Screenshot](https://gmap-tlvr.vemi.jp/og-image.jpg)
 
-## セットアップ
+🌐 **[Live Demo](https://gmap-tlvr.vemi.jp/)**
+
+
+## ✨ 機能
+
+### 📍 位置情報の可視化
+- Googleマップアプリからエクスポートしたロケーション履歴JSONファイルを読み込み、地図上にプロット
+- 年別フィルター機能で特定の期間の履歴を表示
+
+### ▶️ タイムライン再生
+- 時系列で移動履歴をアニメーション再生
+- 1x〜50xまで再生速度を調整可能
+- 広域表示モードと現在地追従モードの切り替え
+
+### 🎬 動画エクスポート（NEW!）
+- タイムライン再生をMP4動画として書き出し
+- FFmpeg.wasmによるブラウザ内エンコード
+- 最大30秒の動画を生成可能
+
+### 🎨 カスタマイズ
+- 地図テーマ: ライト / ダーク / 衛星画像
+- 座標表示のオン/オフ
+
+### 🔒 プライバシー重視
+- **すべてのデータ処理はブラウザ内で完結**
+- サーバーへのデータ送信なし
+- ページを閉じるとデータは自動消去
+
+
+## 📖 使い方
+
+1. **データのエクスポート**: Googleマップアプリ（スマホ）で「設定」→「個人的なコンテンツ」→「タイムライン データをエクスポート」
+2. **ファイル選択**: アプリケーションで `location-history.json` を選択
+3. **再生**: PLAYボタンでアニメーション再生開始
+4. **動画出力**: メニューから録画ボタンを押して動画をエクスポート
+
+
+## 🚀 セットアップ
 
 ### 依存関係のインストール
 
@@ -35,40 +70,56 @@ pnpm build
 
 ビルドされたファイルは `dist/` ディレクトリに出力されます。
 
-## 使い方
+## 🛠️ 技術スタック
 
-1. Googleマップアプリ（スマホ）の「設定」→「個人的なコンテンツ」から位置情報データをエクスポート（デフォルトファイル名: `location-history.json`）
-2. アプリケーションでJSONファイルを選択
-3. データが解析され、地図上に表示されます
-4. PLAYボタンで再生開始
-5. 設定ボタンから年や地図テーマを変更可能
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | React 19 + TypeScript 5.9 |
+| ビルドツール | Vite 7 |
+| スタイリング | Tailwind CSS 4 |
+| 地図 | Leaflet 1.9 |
+| 動画エンコード | FFmpeg.wasm 0.12 |
+| アイコン | Lucide React |
 
-## 技術スタック
-
-- **React 18** + **TypeScript 5**
-- **Vite 6** - 高速ビルドツール
-- **Tailwind CSS 3** - ユーティリティファーストCSSフレームワーク
-- **Leaflet 1.9** - 地図表示ライブラリ
-- **Lucide React** - アイコンライブラリ
-
-## プロジェクト構造
+## 📁 プロジェクト構造
 
 ```
 timeline-tracker/
 ├── src/
-│   ├── App.tsx           # メインコンポーネント
-│   ├── main.tsx          # エントリーポイント
-│   ├── types.ts          # 型定義
-│   ├── utils/
-│   │   ├── dataProcessor.ts   # データ処理ロジック
-│   │   └── mapHelpers.ts      # 地図関連ヘルパー
-│   └── index.css         # グローバルスタイル
+│   ├── App.tsx              # メインコンポーネント
+│   ├── main.tsx             # エントリーポイント
+│   ├── types.ts             # 型定義
+│   ├── components/          # UIコンポーネント
+│   │   ├── ControllerHUD.tsx
+│   │   ├── FileUploader.tsx
+│   │   ├── TimelineControls.tsx
+│   │   ├── SettingsModal.tsx
+│   │   ├── HelpModal.tsx
+│   │   ├── LegalModal.tsx
+│   │   ├── RecordingOverlay.tsx
+│   │   ├── ExportModal.tsx
+│   │   └── ...
+│   ├── hooks/
+│   │   └── useVideoRecorder.ts  # 録画機能フック
+│   └── utils/
+│       ├── dataProcessor.ts     # データ処理
+│       ├── mapHelpers.ts        # 地図ヘルパー
+│       ├── videoExporter.ts     # 動画エクスポート
+│       └── ffmpegCache.ts       # FFmpegキャッシュ管理
+├── public/
+│   ├── manifest.json        # PWAマニフェスト
+│   ├── sitemap.xml
+│   └── robots.txt
+├── index.html
 ├── package.json
-├── tsconfig.json
 ├── vite.config.ts
 └── tailwind.config.js
 ```
 
-## ライセンス
+## 📄 ライセンス
 
-MIT
+[MIT](LICENSE)
+
+---
+
+Made with ❤️ by [VEMI.jp](https://vemi.jp)

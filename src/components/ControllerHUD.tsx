@@ -21,6 +21,7 @@ interface ControllerHUDProps {
   isWideView: boolean;
   onToggleWideView: () => void;
   onOpenSettings: () => void;
+  onOpenHelp: () => void;
   onFocusCurrent: () => void;
   onBackToUpload: () => void;
   onShare?: () => void;
@@ -45,6 +46,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
   isWideView,
   onToggleWideView,
   onOpenSettings,
+  onOpenHelp,
   onFocusCurrent,
   onBackToUpload,
   onShare,
@@ -63,6 +65,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
               isWideView={isWideView}
               onToggleWideView={onToggleWideView}
               onOpenSettings={onOpenSettings}
+              onOpenHelp={onOpenHelp}
               onFocusCurrent={onFocusCurrent}
               onShare={onShare}
               onRecord={onRecord}
@@ -80,6 +83,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
             progress={progress}
             errorMsg={errorMsg}
             onFileUpload={onFileUpload}
+            onOpenHelp={onOpenHelp}
           />
         ) : (
           <TimelineControls

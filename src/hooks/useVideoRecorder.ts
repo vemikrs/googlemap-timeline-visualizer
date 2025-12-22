@@ -290,6 +290,96 @@ export function useVideoRecorder(options: RecorderOptions): RecorderState & Reco
         }
       }
 
+      // 5. TimestampHeader を手動で描画
+      const headerContainer = target.querySelector('[class*="pointer-events-none"]');
+      if (headerContainer) {
+        const headerCard = headerContainer.querySelector('[class*="rounded-3xl"]') as HTMLElement;
+        if (headerCard) {
+          const headerRect = headerCard.getBoundingClientRect();
+          const hx = (headerRect.left - rect.left) * scaleX;
+          const hy = (headerRect.top - rect.top) * scaleY;
+          const hw = headerRect.width * scaleX;
+          const hh = headerRect.height * scaleY;
+          const radius = 24 * scaleX;
+          
+          // 背景（角丸・半透明白）
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(hx, hy, hw, hh, radius);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+          ctx.shadowBlur = 20 * scaleX;
+          ctx.shadowOffsetY = 4 * scaleY;
+          ctx.fill();
+          ctx.restore();
+          
+          // Year Badge（青いグラデーション）
+          const yearBadge = headerCard.querySelector('[class*="rounded-full"]') as HTMLElement;
+          if (yearBadge) {
+            const badgeRect = yearBadge.getBoundingClientRect();
+            const bx = (badgeRect.left - rect.left) * scaleX;
+            const by = (badgeRect.top - rect.top) * scaleY;
+            const bw = badgeRect.width * scaleX;
+            const bh = badgeRect.height * scaleY;
+            const bradius = bh / 2;
+            
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, bh, bradius);
+            const gradient = ctx.createLinearGradient(bx, by, bx + bw, by);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.9)');
+            gradient.addColorStop(1, 'rgba(99, 102, 241, 0.9)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Year テキスト
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${9 * scaleX}px system-ui`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const yearText = yearBadge.textContent?.trim() || '';
+            ctx.fillText(yearText.toUpperCase(), bx + bw / 2, by + bh / 2);
+            ctx.restore();
+          }
+          
+          // Point カウンター
+          const pointText = headerCard.querySelector('[class*="font-mono"][class*="text-base"]');
+          const pointTotal = headerCard.querySelector('[class*="text-gray-400"][class*="font-mono"]');
+          if (pointText && pointTotal) {
+            const pRect = pointText.getBoundingClientRect();
+            ctx.save();
+            ctx.font = `900 ${16 * scaleX}px system-ui`;
+            ctx.fillStyle = '#3b82f6';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            const px = (pRect.right - rect.left) * scaleX;
+            const py = (pRect.top - rect.top + pRect.height / 2) * scaleY;
+            ctx.fillText(pointText.textContent || '', px, py);
+            
+            // "/ total"
+            ctx.font = `bold ${9 * scaleX}px system-ui`;
+            ctx.fillStyle = '#9ca3af';
+            ctx.fillText(pointTotal.textContent || '', px + 35 * scaleX, py);
+            ctx.restore();
+          }
+          
+          // メインのタイムスタンプ
+          const timestamp = headerCard.querySelector('h3');
+          if (timestamp) {
+            const tsRect = timestamp.getBoundingClientRect();
+            ctx.save();
+            ctx.font = `900 ${18 * scaleX}px ui-monospace, monospace`;
+            ctx.fillStyle = '#1f2937';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            const tsx = (tsRect.left - rect.left) * scaleX;
+            const tsy = (tsRect.top - rect.top) * scaleY;
+            ctx.fillText(timestamp.textContent || '', tsx, tsy);
+            ctx.restore();
+          }
+        }
+      }
+
       // Blobに変換（同期的にframesRefに追加）
       canvas.toBlob(
         (blob) => {

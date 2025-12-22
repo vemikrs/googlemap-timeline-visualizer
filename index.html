@@ -23,10 +23,10 @@
     <link rel="dns-prefetch" href="https://server.arcgisonline.com" />
 
     <!-- Primary Meta Tags -->
-    <title>Timeline Visualizer - Google Mapタイムライン可視化ツール | VEMI.jp</title>
-    <meta name="title" content="Timeline Visualizer - Google Mapタイムライン可視化ツール | VEMI.jp" />
-    <meta name="description" content="Google Mapのタイムラインデータを美しく可視化。位置情報履歴をインタラクティブな地図上でアニメーション再生。プライバシー保護（データはブラウザ内のみで処理）。無料で簡単に利用可能。" />
-    <meta name="keywords" content="Google Map,タイムライン,位置情報,可視化,トラッキング,GPS,ロケーション履歴,地図,アニメーション,プライバシー,VEMI,ロケーション履歴エクスポート,移動履歴,行動履歴" />
+    <title>Timeline Visualizer - Google Mapタイムライン可視化・動画エクスポート | VEMI.jp</title>
+    <meta name="title" content="Timeline Visualizer - Google Mapタイムライン可視化・動画エクスポート | VEMI.jp" />
+    <meta name="description" content="Google Mapのタイムラインデータを美しく可視化。位置情報履歴をインタラクティブな地図上でアニメーション再生し、MP4動画としてエクスポート。プライバシー保護（データはブラウザ内のみで処理）。無料で簡単に利用可能。" />
+    <meta name="keywords" content="Google Map,タイムライン,位置情報,可視化,トラッキング,GPS,ロケーション履歴,地図,アニメーション,プライバシー,VEMI,ロケーション履歴エクスポート,移動履歴,行動履歴,動画エクスポート,MP4,録画" />
     <meta name="author" content="VEMI.jp" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="language" content="Japanese" />
@@ -37,8 +37,8 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://gmap-tlvr.vemi.jp/" />
-    <meta property="og:title" content="Timeline Visualizer - Google Mapタイムライン可視化ツール" />
-    <meta property="og:description" content="Google Mapのタイムラインデータを美しく可視化。位置情報履歴をインタラクティブな地図上でアニメーション再生。プライバシー保護で安心。" />
+    <meta property="og:title" content="Timeline Visualizer - Google Mapタイムライン可視化・動画エクスポート" />
+    <meta property="og:description" content="Google Mapのタイムラインデータを美しく可視化。位置情報履歴をアニメーション再生し、MP4動画としてエクスポート。プライバシー保護で安心。" />
     <meta property="og:image" content="https://gmap-tlvr.vemi.jp/og-image.jpg" />
     <meta property="og:image:secure_url" content="https://gmap-tlvr.vemi.jp/og-image.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
@@ -51,8 +51,8 @@
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://gmap-tlvr.vemi.jp/" />
-    <meta property="twitter:title" content="Timeline Visualizer - Google Mapタイムライン可視化ツール" />
-    <meta property="twitter:description" content="Google Mapのタイムラインデータを美しく可視化。位置情報履歴をインタラクティブな地図上でアニメーション再生。" />
+    <meta property="twitter:title" content="Timeline Visualizer - Google Mapタイムライン可視化・動画エクスポート" />
+    <meta property="twitter:description" content="Google Mapのタイムラインデータを美しく可視化。位置情報履歴をアニメーション再生し、MP4動画としてエクスポート。" />
     <meta property="twitter:image" content="https://gmap-tlvr.vemi.jp/og-image.jpg" />
 
     <!-- Canonical URL -->
@@ -101,10 +101,12 @@
       "featureList": [
         "Google Mapタイムラインデータのインポート",
         "位置情報履歴のアニメーション再生",
+        "MP4動画としてエクスポート",
         "年別フィルタリング機能",
         "再生速度調整（1-50倍速）",
         "地図テーマ切替（明/暗/衛星）",
-        "プライバシー保護（ローカル処理）"
+        "プライバシー保護（ローカル処理）",
+        "SNSシェア機能"
       ],
       "screenshot": "https://gmap-tlvr.vemi.jp/og-image.jpg"
     }
@@ -178,7 +180,7 @@
           "name": "データのプライバシーは保護されますか？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "はい、アップロードされたデータはすべてブラウザ内でのみ処理されます。サーバーにデータが送信されることはありません。"
+            "text": "はい、アップロードされたデータはすべてブラウザ内でのみ処理されます。サーバーにデータが送信されることはありません。動画エクスポートもブラウザ内で完結します。"
           }
         },
         {
@@ -186,7 +188,7 @@
           "name": "どのようなデータ形式に対応していますか？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "GoogleマップアプリからエクスポートされたJSON形式のロケーション履歴データに対応しています。"
+            "text": "GoogleマップアプリからエクスポートされたJSON形式のロケーション履歴データ（location-history.json）に対応しています。"
           }
         },
         {
@@ -195,6 +197,22 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "はい、Timeline Visualizerはレスポンシブデザインに対応しており、スマートフォンやタブレットでもご利用いただけます。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "タイムラインを動画として保存できますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "はい、タイムライン再生をMP4動画として書き出すことができます。メニューの録画ボタンから最大30秒の動画を作成でき、SNSでのシェアに最適です。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "動画エクスポートにはどれくらい時間がかかりますか？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "初回のみFFmpegライブラリ（約30MB）のダウンロードが必要です。その後の動画生成は録画時間の数倍程度で完了します。"
           }
         }
       ]

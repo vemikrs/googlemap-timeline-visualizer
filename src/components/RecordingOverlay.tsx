@@ -35,24 +35,21 @@ const RecordingOverlay: React.FC<RecordingOverlayProps> = ({
       {/* Top Recording Indicator */}
       {isRecording && (
         <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-[1500]">
-          <div className="bg-black/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3 shadow-lg">
-            {/* Pulsing red dot */}
-            <div className="relative">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-              <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75" />
+          <div className="bg-black/80 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-lg">
+            {/* 1行目: REC + 時間 */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="relative">
+                <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                <div className="absolute inset-0 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping opacity-75" />
+              </div>
+              <span className="text-white font-mono font-bold text-xs">
+                {formatTime(elapsedTime)} / {formatTime(maxDuration)}
+              </span>
             </div>
-            
-            <span className="text-white font-mono font-bold text-sm">
-              REC
-            </span>
-            
-            <span className="text-white font-mono text-sm">
-              {formatTime(elapsedTime)} / {formatTime(maxDuration)}
-            </span>
-            
-            <span className="text-gray-400 text-xs">
+            {/* 2行目: フレーム数 */}
+            <div className="text-center text-gray-400 text-[10px] mt-0.5">
               {frameCount} frames
-            </span>
+            </div>
           </div>
         </div>
       )}

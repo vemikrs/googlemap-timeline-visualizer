@@ -54,7 +54,7 @@ const FFmpegDownloadModal: React.FC<FFmpegDownloadModalProps> = ({
           {phase === 'confirm' && (
             <>
               <p className="text-gray-700 mb-4">
-                録画機能を使用するには、追加データのダウンロードが必要です。
+                録画機能を使用するには、追加アセットのダウンロードが必要です。
               </p>
               
               <div className="bg-gray-50 rounded-xl p-4 mb-4 space-y-2">
@@ -74,7 +74,7 @@ const FFmpegDownloadModal: React.FC<FFmpegDownloadModalProps> = ({
                 </div>
                 <div className="flex items-center gap-2 text-xs text-green-600">
                   <Monitor size={12} className="flex-shrink-0" />
-                  <span>画面の表示内容のみを録画します</span>
+                  <span>マップ上の位置表示内容のみを録画します</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-green-600">
                   <ShieldCheck size={12} className="flex-shrink-0" />

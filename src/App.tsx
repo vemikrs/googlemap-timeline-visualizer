@@ -10,6 +10,7 @@ import ControllerHUD from './components/ControllerHUD';
 import FFmpegDownloadModal from './components/FFmpegDownloadModal';
 import RecordingOverlay from './components/RecordingOverlay';
 import ExportModal from './components/ExportModal';
+import HelpModal from './components/HelpModal';
 import { useVideoRecorder } from './hooks/useVideoRecorder';
 
 /**
@@ -38,6 +39,7 @@ const App: React.FC = () => {
   const [showCoordinates, setShowCoordinates] = useState<boolean>(false);
   const [showYearFilter, setShowYearFilter] = useState<boolean>(false);
   const [showInitialHints, setShowInitialHints] = useState<boolean>(false);
+  const [showHelp, setShowHelp] = useState<boolean>(false);
 
   // --- Refs ---
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -473,6 +475,11 @@ const App: React.FC = () => {
         onCoordinatesToggle={setShowCoordinates}
       />
 
+      <HelpModal
+        isOpen={showHelp}
+        onClose={() => setShowHelp(false)}
+      />
+
       <ControllerHUD
         points={points}
         currentIndex={currentIndex}
@@ -495,6 +502,7 @@ const App: React.FC = () => {
         isWideView={isWideView}
         onToggleWideView={() => setIsWideView(!isWideView)}
         onOpenSettings={() => setShowSettings(true)}
+        onOpenHelp={() => setShowHelp(true)}
         onFocusCurrent={focusOnCurrent}
         onBackToUpload={handleBackToUpload}
         onShare={handleShare}
