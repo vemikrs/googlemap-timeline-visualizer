@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Settings, Maximize2, Minimize2, Crosshair, Menu, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2 } from 'lucide-react';
 
 interface ControlButtonsProps {
   isWideView: boolean;
   onToggleWideView: () => void;
   onOpenSettings: () => void;
   onFocusCurrent: () => void;
+  onShare?: () => void;
+  showInitialMenu?: boolean;
 }
 
 const ControlButtons: React.FC<ControlButtonsProps> = ({
@@ -13,14 +15,40 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
   onToggleWideView,
   onOpenSettings,
   onFocusCurrent,
+  onShare,
+  showInitialMenu = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasShownInitial, setHasShownInitial] = useState(false);
+  const canShare = typeof navigator !== 'undefined' && !!navigator.share;
+
+  // 初回のみメニューを開く（自動で閉じない）
+  useEffect(() => {
+    if (showInitialMenu && !hasShownInitial) {
+      setHasShownInitial(true);
+      setIsExpanded(true);
+    }
+  }, [showInitialMenu, hasShownInitial]);
 
   return (
     <div className="relative w-10">
       {/* Expanded Buttons - Appear Above Toggle */}
       {isExpanded && (
         <div className="absolute bottom-12 left-0 w-10 flex flex-col gap-1.5 animate-in slide-in-from-bottom-2 duration-200">
+          {/* Share Button (Mobile) */}
+          {canShare && onShare && (
+            <button 
+              onClick={() => {
+                onShare();
+                setIsExpanded(false);
+              }}
+              className="bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 w-10 h-10 rounded-xl shadow-lg border border-green-200/50 text-green-600 active:scale-95 transition-all flex items-center justify-center"
+              title="シェア"
+            >
+              <Share2 size={18} />
+            </button>
+          )}
+
           {/* Focus Button */}
           <button 
             onClick={() => {

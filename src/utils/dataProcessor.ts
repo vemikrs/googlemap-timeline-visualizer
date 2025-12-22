@@ -48,7 +48,8 @@ export const getPointsFromObject = (item: any, contextBaseTime: string | null = 
     });
   }
   
-  if (item.latitudeE7 && item.longitudeE7 && baseTimeMs) {
+  // latitudeE7/longitudeE7 が 0 の場合も正しく処理（赤道直下など）
+  if (item.latitudeE7 != null && item.longitudeE7 != null && baseTimeMs) {
     results.push({ lat: item.latitudeE7 / 1e7, lng: item.longitudeE7 / 1e7, ts: baseTimeMs });
   }
   
@@ -62,45 +63,61 @@ export const processData = async (
   json: any,
   onProgress: (progress: number) => void
 ): Promise<Point[]> => {
-  const extracted: Array<{lat: number, lng: number, ts: number}> = [];
-  const stack: any[] = [json];
+  const extracted: Array<{ lat: number; lng: number; ts: number }> = [];
+  
+  // スタックにデータとコンテキスト(基準時刻)をペアで持たせる（入力JSONを汚染しない）
+  const stack: Array<{ node: any; parentTime: string | null }> = [
+    { node: json, parentTime: null }
+  ];
+
   const maxScan = 2000000;
   let itemsScanned = 0;
-  
+
+  // 進捗計算用の推定母数（ヒューリスティック値、ファイルサイズにより実際の要素数は異なる）
+  const estimatedTotal = 800000;
+
   while (stack.length > 0 && itemsScanned < maxScan) {
-    const current = stack.pop();
+    const { node, parentTime } = stack.pop()!;
     itemsScanned++;
-    if (!current) continue;
-    
-    const found = getPointsFromObject(current);
+
+    if (!node || typeof node !== 'object') continue;
+
+    // parentTime を渡すことで timelinePath 等の相対時刻計算が正しく機能する
+    const found = getPointsFromObject(node, parentTime);
     if (found.length > 0) extracted.push(...found);
-    
-    if (typeof current === 'object') {
-      const values = Array.isArray(current) ? current : Object.values(current);
-      for (let i = values.length - 1; i >= 0; i--) {
-        const val = values[i];
-        if (val && typeof val === 'object' && !Array.isArray(val)) {
-          if (current.startTime) val._contextStartTime = current.startTime;
-          stack.push(val);
-        } else if (Array.isArray(val)) {
-          stack.push(val);
+
+    // 次の階層へ渡す時刻を決定（現在のノードが時刻を持っていればそれを、なければ親の時刻を継承）
+    const nextContextTime = node.startTime || node.timestamp || parentTime;
+
+    if (Array.isArray(node)) {
+      for (let i = node.length - 1; i >= 0; i--) {
+        stack.push({ node: node[i], parentTime: nextContextTime });
+      }
+    } else {
+      // Object.valuesを使わずキー走査でメモリ節約（GC負荷軽減）
+      const keys = Object.keys(node);
+      for (let i = keys.length - 1; i >= 0; i--) {
+        const val = node[keys[i]];
+        // 配列またはオブジェクトのみ探索対象にする
+        if (val && typeof val === 'object') {
+          stack.push({ node: val, parentTime: nextContextTime });
         }
       }
     }
-    
+
     if (itemsScanned % 30000 === 0) {
-      onProgress(Math.min(99, Math.round((itemsScanned / 800000) * 100)));
-      await new Promise(r => setTimeout(r, 0));
+      onProgress(Math.min(99, Math.round((itemsScanned / estimatedTotal) * 100)));
+      await new Promise((r) => setTimeout(r, 0));
     }
   }
-  
+
   if (extracted.length === 0) {
     throw new Error('位置情報が見つかりませんでした。');
   }
-  
+
   return extracted
-    .filter(p => p.ts > 0)
-    .map(p => {
+    .filter((p) => p.ts > 0)
+    .map((p) => {
       const d = new Date(p.ts);
       return { ...p, year: d.getFullYear() };
     })

@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [isWideView, setIsWideView] = useState<boolean>(true);
   const [showCoordinates, setShowCoordinates] = useState<boolean>(false);
   const [showYearFilter, setShowYearFilter] = useState<boolean>(false);
+  const [showInitialHints, setShowInitialHints] = useState<boolean>(false);
 
   // --- Refs ---
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -135,6 +136,10 @@ const App: React.FC = () => {
           setSelectedYearStart(years[0]);
           setSelectedYearEnd(years[0]);
         }
+        // 初回ヒントを表示
+        setShowInitialHints(true);
+        // 5秒後にヒントを非表示
+        setTimeout(() => setShowInitialHints(false), 5000);
       } catch (err) { 
         setErrorMsg((err as Error).message); 
       } finally { 
@@ -190,6 +195,48 @@ const App: React.FC = () => {
       }
     };
   }, [isPlaying, points.length, playbackSpeed, currentIndex]);
+
+  // --- Keyboard Shortcuts ---
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (points.length === 0) return;
+      
+      switch (e.code) {
+        case 'Space':
+          e.preventDefault();
+          if (currentIndex >= points.length - 1 && !isPlaying) {
+            setCurrentIndex(0);
+            setTimeout(() => setIsPlaying(true), 50);
+          } else {
+            setIsPlaying(prev => !prev);
+          }
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          setIsPlaying(false);
+          setCurrentIndex(prev => Math.max(0, prev - Math.max(1, Math.floor(points.length / 100))));
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          setIsPlaying(false);
+          setCurrentIndex(prev => Math.min(points.length - 1, prev + Math.max(1, Math.floor(points.length / 100))));
+          break;
+        case 'Home':
+          e.preventDefault();
+          setIsPlaying(false);
+          setCurrentIndex(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          setIsPlaying(false);
+          setCurrentIndex(points.length - 1);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [points.length, currentIndex, isPlaying]);
 
   // --- Rendering Points on Map ---
   useEffect(() => {
@@ -248,10 +295,42 @@ const App: React.FC = () => {
     }
   }, [currentIndex, points, isWideView, isPlaying]);
 
-  const handleReset = () => {
+  const handleBackToUpload = () => {
     setRawPoints([]);
     setPoints([]);
     setShowSettings(false);
+    setIsPlaying(false);
+    setCurrentIndex(0);
+    // マップからポリラインとマーカーを削除
+    if (polylineRef.current && mapInstance.current) {
+      mapInstance.current.removeLayer(polylineRef.current);
+      polylineRef.current = null;
+    }
+    if (markerRef.current && mapInstance.current) {
+      mapInstance.current.removeLayer(markerRef.current);
+      markerRef.current = null;
+    }
+    // マップを日本中心にリセット
+    if (mapInstance.current) {
+      mapInstance.current.setView([36.2048, 138.2529], 5, { animate: true });
+    }
+  };
+
+  const handleShare = async () => {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Timeline Visualizer',
+          text: 'Google Mapタイムラインデータを可視化しよう！',
+          url: window.location.href,
+        });
+      } catch (err) {
+        // ユーザーがシェアをキャンセルした場合は無視
+        if ((err as Error).name !== 'AbortError') {
+          console.error('シェアに失敗しました:', err);
+        }
+      }
+    }
   };
 
   const handleSeek = (index: number) => {
@@ -276,6 +355,7 @@ const App: React.FC = () => {
           }
           showCoordinates={showCoordinates}
           onYearFilterClick={() => setShowYearFilter(true)}
+          showInitialHint={showInitialHints}
         />
       )}
 
@@ -298,7 +378,7 @@ const App: React.FC = () => {
         onClose={() => setShowSettings(false)}
         mapTheme={mapTheme}
         onThemeChange={setMapTheme}
-        onReset={handleReset}
+        onReset={handleBackToUpload}
         showCoordinates={showCoordinates}
         onCoordinatesToggle={setShowCoordinates}
       />
@@ -320,16 +400,15 @@ const App: React.FC = () => {
         errorMsg={errorMsg}
         onFileUpload={handleFileUpload}
         onPlayPause={() => setIsPlaying(!isPlaying)}
-        onReset={() => {
-          setIsPlaying(false);
-          setCurrentIndex(0);
-        }}
         onSeek={handleSeek}
         onSpeedChange={setPlaybackSpeed}
         isWideView={isWideView}
         onToggleWideView={() => setIsWideView(!isWideView)}
         onOpenSettings={() => setShowSettings(true)}
         onFocusCurrent={focusOnCurrent}
+        onBackToUpload={handleBackToUpload}
+        onShare={handleShare}
+        showInitialHints={showInitialHints}
       />
 
       {/* Copyright Footer */}
