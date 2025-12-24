@@ -29,3 +29,6 @@ dist-ssr
 
 # Temporary files
 /tmp/
+
+# Auto-generated library copies (built from node_modules)
+public/lib/

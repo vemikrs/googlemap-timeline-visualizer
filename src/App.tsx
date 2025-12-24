@@ -30,6 +30,10 @@ const DEFAULT_ZOOM_FOCUS = 11;   // 拡大モード（既定）
 const MAX_ZOOM_FOCUS = 15;       // フォーカスボタン押下時
 const DEFAULT_MAX_SPEED_FOCUS = 10; // 拡大モード時の最大速度（既定）
 
+// ファイルサイズ上限（500MB）
+const MAX_FILE_SIZE_MB = 500;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const App: React.FC = () => {
   // --- States ---
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -197,6 +201,12 @@ const App: React.FC = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // ファイルサイズチェック（セキュリティ対策）
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setErrorMsg(`ファイルサイズが大きすぎます（上限: ${MAX_FILE_SIZE_MB}MB）。`);
+      return;
+    }
     
     // 新しいファイル読み込み時に設定をリセット
     resetSettings();

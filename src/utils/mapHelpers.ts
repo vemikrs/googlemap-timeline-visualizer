@@ -20,25 +20,48 @@ export const getTileLayerUrl = (theme: MapTheme): string => {
 };
 
 /**
+ * Leaflet library configuration
+ * 自前ホスティング版を優先、フォールバックとしてCDNを使用
+ */
+const LEAFLET_LOCAL_JS = '/lib/leaflet/leaflet.js';
+const LEAFLET_LOCAL_CSS = '/lib/leaflet/leaflet.css';
+const LEAFLET_CDN_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+const LEAFLET_CDN_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+
+/**
  * Load Leaflet library dynamically
+ * 自前ホスティング版を優先し、失敗時はCDNにフォールバック
  */
 export const loadLeaflet = async (): Promise<void> => {
   if (window.L) return;
 
-  // Load CSS
+  // Load CSS (自前ホスティング版)
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  link.href = LEAFLET_LOCAL_CSS;
   document.head.appendChild(link);
 
-  // Load JS
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Leaflet'));
-    document.head.appendChild(script);
-  });
+  // Load JS with fallback
+  const loadScript = (src: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error(`Failed to load: ${src}`));
+      document.head.appendChild(script);
+    });
+  };
+
+  try {
+    // 自前ホスティング版を試行
+    await loadScript(LEAFLET_LOCAL_JS);
+  } catch {
+    // フォールバック: CDN版を試行
+    console.warn('Local Leaflet failed, falling back to CDN');
+    // CSS も CDN 版に切り替え
+    link.href = LEAFLET_CDN_CSS;
+    await loadScript(LEAFLET_CDN_JS);
+  }
 };
 
 /**
