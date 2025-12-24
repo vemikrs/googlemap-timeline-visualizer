@@ -1,7 +1,7 @@
 {
   "name": "Timeline Visualizer - Google Mapタイムライン可視化・動画エクスポート",
   "short_name": "Timeline Visualizer",
-  "description": "Google Mapのタイムラインデータを美しく可視化。位置情報履歴をアニメーション再生し、MP4動画としてエクスポート。",
+  "description": "Google Mapのタイムラインデータを可視化。位置情報履歴をアニメーション再生し、MP4動画としてエクスポート。",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",

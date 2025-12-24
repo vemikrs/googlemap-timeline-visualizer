@@ -26,6 +26,7 @@ interface ControllerHUDProps {
   onBackToUpload: () => void;
   onShare?: () => void;
   onRecord?: () => void;
+  onToggleStats?: () => void;
   isRecording?: boolean;
   showInitialHints?: boolean;
   onLoadDemo?: () => void;
@@ -53,6 +54,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
   onBackToUpload,
   onShare,
   onRecord,
+  onToggleStats,
   isRecording = false,
   showInitialHints = false,
   onLoadDemo,
@@ -73,6 +75,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
               onFocusCurrent={onFocusCurrent}
               onShare={onShare}
               onRecord={onRecord}
+              onToggleStats={onToggleStats}
               isRecording={isRecording}
               showInitialMenu={showInitialHints}
             />

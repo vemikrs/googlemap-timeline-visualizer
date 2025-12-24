@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2, Video, HelpCircle } from 'lucide-react';
+import { Settings, Maximize2, Minimize2, Crosshair, Menu, X, Share2, Video, HelpCircle, BarChart3 } from 'lucide-react';
 
 interface ControlButtonsProps {
   isWideView: boolean;
@@ -9,6 +9,7 @@ interface ControlButtonsProps {
   onFocusCurrent: () => void;
   onShare?: () => void;
   onRecord?: () => void;
+  onToggleStats?: () => void;
   isRecording?: boolean;
   showInitialMenu?: boolean;
 }
@@ -21,12 +22,12 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
   onFocusCurrent,
   onShare,
   onRecord,
+  onToggleStats,
   isRecording = false,
   showInitialMenu = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasShownInitial, setHasShownInitial] = useState(false);
-  const canShare = typeof navigator !== 'undefined' && !!navigator.share;
 
   // 初回のみメニューを開く（自動で閉じない）
   useEffect(() => {
@@ -62,8 +63,22 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
             </button>
           )}
 
-          {/* Share Button (Mobile) */}
-          {canShare && onShare && (
+          {/* Stats Button */}
+          {onToggleStats && (
+            <button 
+              onClick={() => {
+                onToggleStats();
+                setIsExpanded(false);
+              }}
+              className="bg-gradient-to-br from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 w-10 h-10 rounded-xl shadow-lg border border-purple-200/50 text-purple-600 active:scale-95 transition-all flex items-center justify-center"
+              title="統計"
+            >
+              <BarChart3 size={18} />
+            </button>
+          )}
+
+          {/* Share Button */}
+          {onShare && (
             <button 
               onClick={() => {
                 onShare();

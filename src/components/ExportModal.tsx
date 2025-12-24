@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Download, Share2, X, Check, Film } from 'lucide-react';
+import { Download, Share2, X, Check, Film, Copy } from 'lucide-react';
+import { 
+  shareToTwitter, 
+  shareToLine, 
+  copyToClipboard,
+  generateShareUrl,
+} from '../utils/socialShare';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -28,6 +34,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [canShare, setCanShare] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
 
   useEffect(() => {
     if (outputBlob) {
@@ -61,6 +68,25 @@ const ExportModal: React.FC<ExportModalProps> = ({
     if (success) {
       setShareSuccess(true);
     }
+  };
+
+  const shareUrl = generateShareUrl({ demo: true });
+  const shareText = 'タイムラインを動画にしてみた！ #TimelineVisualizer #GoogleMap';
+
+  const handleCopyUrl = async () => {
+    const success = await copyToClipboard(`${shareText}\n${shareUrl}`);
+    if (success) {
+      setCopiedUrl(true);
+      setTimeout(() => setCopiedUrl(false), 2000);
+    }
+  };
+
+  const handleShareTwitter = () => {
+    shareToTwitter(shareText, shareUrl);
+  };
+
+  const handleShareLine = () => {
+    shareToLine(shareText, shareUrl);
   };
 
   const isVideo = format !== 'gif';
@@ -176,6 +202,36 @@ const ExportModal: React.FC<ExportModalProps> = ({
               💡 「共有する」から「ビデオを保存」でカメラロールに保存できます
             </p>
           )}
+
+          {/* SNS Share Buttons */}
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-xs text-gray-500 mb-2 text-center">アプリをシェア</p>
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={handleShareTwitter}
+                className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-colors"
+              >
+                𝕏
+              </button>
+              <button
+                onClick={handleShareLine}
+                className="px-3 py-2 rounded-lg bg-green-100 hover:bg-green-200 text-green-600 text-sm font-medium transition-colors"
+              >
+                LINE
+              </button>
+              <button
+                onClick={handleCopyUrl}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
+                  copiedUrl 
+                    ? 'bg-green-100 text-green-600' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }`}
+              >
+                {copiedUrl ? <Check size={14} /> : <Copy size={14} />}
+                {copiedUrl ? 'コピー済' : 'URL'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

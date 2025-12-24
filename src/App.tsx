@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Map as LeafletMap, Polyline, Marker, LatLngBounds } from 'leaflet';
-import type { Point, MapTheme, PrivacyLevelId, RegionPresetId } from './types';
+import type { Point, MapTheme, PrivacyLevelId, RegionPresetId, TimelineStats } from './types';
 import { obfuscatePoints, PRIVACY_LEVELS, REGION_PRESETS } from './types';
 import { processData } from './utils/dataProcessor';
 import { loadLeaflet, getTileLayerUrl, preloadTilesForPoints, calculateDistance, getPanThreshold } from './utils/mapHelpers';
+import { calculateStats } from './utils/statsCalculator';
 import SettingsModal from './components/SettingsModal';
 import YearFilterModal from './components/YearFilterModal';
 import TimestampHeader from './components/TimestampHeader';
@@ -17,7 +18,9 @@ import RecordingPrivacyPrompt from './components/RecordingPrivacyPrompt';
 import ZoomSettingsModal from './components/ZoomSettingsModal';
 import RegionSettingsModal from './components/RegionSettingsModal';
 import MiniMap from './components/MiniMap';
+import { ShareModal, StatsCard } from './components/share';
 import { useVideoRecorder } from './hooks/useVideoRecorder';
+import { useShareableState } from './hooks/useShareableState';
 
 /**
  * Google Maps Timeline Visualizer (Location History JSON Optimized)
@@ -64,6 +67,10 @@ const App: React.FC = () => {
   const [dataBounds, setDataBounds] = useState<LatLngBounds | null>(null);
   const [showRegionSettings, setShowRegionSettings] = useState<boolean>(false);
   
+  // Share Modal State
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
+  const [showStats, setShowStats] = useState<boolean>(false);
+  
   // Privacy Level State
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevelId>('none');
   const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
@@ -87,6 +94,41 @@ const App: React.FC = () => {
     resolution: 0.6,
     format: 'mp4',
   });
+
+  // --- Shareable State (Deep Links) ---
+  const { initialState, isInitialized } = useShareableState();
+
+  // --- Stats Calculation (元データから計算、間引き前) ---
+  const stats: TimelineStats = useMemo(() => {
+    // 年度フィルターを適用した元データから統計を計算
+    let filteredRaw = rawPoints;
+    if (selectedYearStart !== null && selectedYearEnd !== null) {
+      filteredRaw = rawPoints.filter(p => p.year >= selectedYearStart && p.year <= selectedYearEnd);
+    }
+    return calculateStats(filteredRaw);
+  }, [rawPoints, selectedYearStart, selectedYearEnd]);
+
+  // --- Year Range Helper ---
+  const yearRange = useMemo(() => ({
+    start: selectedYearStart ?? availableYears[availableYears.length - 1] ?? new Date().getFullYear(),
+    end: selectedYearEnd ?? availableYears[0] ?? new Date().getFullYear(),
+  }), [selectedYearStart, selectedYearEnd, availableYears]);
+
+  // --- Apply URL params on init ---
+  useEffect(() => {
+    if (isInitialized && initialState) {
+      if (initialState.theme) {
+        setMapTheme(initialState.theme);
+      }
+      if (initialState.view) {
+        setIsWideView(initialState.view === 'wide');
+      }
+      if (initialState.speed) {
+        setPlaybackSpeed(initialState.speed);
+      }
+      // yearStart/yearEnd は rawPoints 読み込み後に適用
+    }
+  }, [isInitialized, initialState]);
 
   // --- Map Initialization ---
   useEffect(() => {
@@ -533,21 +575,18 @@ const App: React.FC = () => {
     }
   };
 
-  const handleShare = async () => {
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Timeline Visualizer',
-          text: 'Google Mapタイムラインデータを可視化しよう！',
-          url: window.location.href,
-        });
-      } catch (err) {
-        // ユーザーがシェアをキャンセルした場合は無視
-        if ((err as Error).name !== 'AbortError') {
-          console.error('シェアに失敗しました:', err);
-        }
-      }
+  const handleShare = () => {
+    // シェア時は全軌跡を表示するため、再生位置を最後に移動
+    if (points.length > 0) {
+      setIsPlaying(false);
+      setCurrentIndex(points.length - 1);
     }
+    // シェアモーダルを表示
+    setShowShareModal(true);
+  };
+
+  const handleToggleStats = () => {
+    setShowStats(!showStats);
   };
 
   const handleSeek = (index: number) => {
@@ -752,6 +791,7 @@ const App: React.FC = () => {
         onBackToUpload={handleBackToUpload}
         onShare={handleShare}
         onRecord={handleRecordClick}
+        onToggleStats={handleToggleStats}
         isRecording={recorder.status === 'recording'}
         showInitialHints={showInitialHints}
         onLoadDemo={handleLoadDemo}
@@ -777,6 +817,32 @@ const App: React.FC = () => {
         onDownload={recorder.downloadVideo}
         onShare={recorder.shareVideo}
       />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        points={points}
+        stats={stats}
+        yearRange={yearRange}
+        mapTheme={mapTheme}
+        privacyLevel={privacyLevel}
+        mapContainerRef={mapContainerRef}
+      />
+
+      {/* Stats Card Overlay */}
+      {showStats && points.length > 0 && (
+        <div className="absolute top-20 right-4 z-[1000] w-80 max-w-[calc(100vw-2rem)]">
+          <StatsCard
+            stats={stats}
+            yearRange={yearRange}
+            onShare={() => {
+              setShowStats(false);
+              setShowShareModal(true);
+            }}
+          />
+        </div>
+      )}
 
       {/* Copyright Footer */}
       {points.length > 0 && (

@@ -12,6 +12,69 @@ export interface ParsedCoords {
 
 export type MapTheme = 'light' | 'dark' | 'satellite';
 
+// アスペクト比（動画エクスポート用）
+export type AspectRatio = '16:9' | '9:16' | '1:1';
+
+// 動画品質
+export type VideoQuality = 'low' | 'medium' | 'high';
+
+// 動画エクスポート設定（拡張版）
+export interface VideoExportOptions {
+  fps: number;
+  maxDuration: number;
+  resolution: number;
+  format: 'mp4' | 'gif' | 'webm';
+  aspectRatio: AspectRatio;
+  quality: VideoQuality;
+  watermark: boolean;
+  includeStats: boolean;
+}
+
+// タイムライン統計
+export interface TimelineStats {
+  totalPoints: number;
+  totalDistance: number;      // km
+  yearlyBreakdown: {
+    year: number;
+    points: number;
+    distance: number;
+  }[];
+  longestTrip: {
+    distance: number;
+    fromLat: number;
+    fromLng: number;
+    toLat: number;
+    toLng: number;
+    date: number;
+  } | null;
+  earthCircumferences: number;  // 地球何周分
+  moonDistancePercent: number;  // 月までの距離の何%
+  averagePointsPerDay: number;
+  dateRange: {
+    start: number;
+    end: number;
+  };
+}
+
+// シェアデータ
+export interface ShareData {
+  points: Point[];
+  yearRange: { start: number; end: number };
+  stats: TimelineStats;
+  videoBlob?: Blob;
+  mapTheme: MapTheme;
+}
+
+// ディープリンク用の共有可能な状態
+export interface ShareableState {
+  yearStart?: number;
+  yearEnd?: number;
+  theme?: MapTheme;
+  view?: 'wide' | 'focus';
+  speed?: number;
+  demo?: boolean;
+}
+
 // 地域プリセット
 export interface RegionPreset {
   id: string;
