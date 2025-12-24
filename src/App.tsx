@@ -3,7 +3,7 @@ import type { Map as LeafletMap, Polyline, Marker } from 'leaflet';
 import type { Point, MapTheme, PrivacyLevelId } from './types';
 import { obfuscatePoints, PRIVACY_LEVELS } from './types';
 import { processData } from './utils/dataProcessor';
-import { loadLeaflet, getTileLayerUrl } from './utils/mapHelpers';
+import { loadLeaflet, getTileLayerUrl, preloadTilesForPoints, calculateDistance, getPanThreshold } from './utils/mapHelpers';
 import SettingsModal from './components/SettingsModal';
 import YearFilterModal from './components/YearFilterModal';
 import TimestampHeader from './components/TimestampHeader';
@@ -14,12 +14,19 @@ import ExportModal from './components/ExportModal';
 import HelpModal from './components/HelpModal';
 import PrivacyLevelModal from './components/PrivacyLevelModal';
 import RecordingPrivacyPrompt from './components/RecordingPrivacyPrompt';
+import ZoomSettingsModal from './components/ZoomSettingsModal';
 import { useVideoRecorder } from './hooks/useVideoRecorder';
 
 /**
  * Google Maps Timeline Visualizer (Location History JSON Optimized)
  * 修正版: 日本地図レベルの定点モードと、現在地へのフォーカスボタンを追加。
  */
+
+// ズームレベル定数
+const DEFAULT_ZOOM_WIDE = 5;      // 広域モード（日本全体）
+const DEFAULT_ZOOM_FOCUS = 11;   // 拡大モード（既定）
+const MAX_ZOOM_FOCUS = 15;       // フォーカスボタン押下時
+const DEFAULT_MAX_SPEED_FOCUS = 10; // 拡大モード時の最大速度（既定）
 
 const App: React.FC = () => {
   // --- States ---
@@ -44,6 +51,9 @@ const App: React.FC = () => {
   const [showInitialHints, setShowInitialHints] = useState<boolean>(false);
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [isDemoLoading, setIsDemoLoading] = useState<boolean>(false);
+  const [focusZoomLevel, setFocusZoomLevel] = useState<number>(DEFAULT_ZOOM_FOCUS);
+  const [maxSpeedFocusMode, setMaxSpeedFocusMode] = useState<number>(DEFAULT_MAX_SPEED_FOCUS);
+  const [showZoomSettings, setShowZoomSettings] = useState<boolean>(false);
   
   // Privacy Level State
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevelId>('none');
@@ -57,6 +67,8 @@ const App: React.FC = () => {
   const polylineRef = useRef<Polyline | null>(null);
   const markerRef = useRef<Marker | null>(null);
   const animationRef = useRef<number | null>(null);
+  const panThrottleRef = useRef<number>(0);
+  const prevPointRef = useRef<Point | null>(null);
 
   // --- Video Recorder ---
   const recorder = useVideoRecorder({
@@ -123,14 +135,14 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!mapInstance.current || !points.length) return;
     if (isWideView) {
-      mapInstance.current.setView([36.2048, 138.2529], 5, { animate: true });
+      mapInstance.current.setView([36.2048, 138.2529], DEFAULT_ZOOM_WIDE, { animate: true });
     } else if (currentIndex < points.length) {
       const cp = points[currentIndex];
       if (cp) {
-        mapInstance.current.setView([cp.lat, cp.lng], 13, { animate: true });
+        mapInstance.current.setView([cp.lat, cp.lng], focusZoomLevel, { animate: true });
       }
     }
-  }, [isWideView, points.length, currentIndex]);
+  }, [isWideView, points.length, currentIndex, focusZoomLevel]);
 
   // --- Helper Functions ---
   const focusOnCurrent = () => {
@@ -138,7 +150,7 @@ const App: React.FC = () => {
     const cp = points[currentIndex];
     if (!cp) return;
     setIsWideView(false);
-    mapInstance.current.setView([cp.lat, cp.lng], 15, { animate: true });
+    mapInstance.current.setView([cp.lat, cp.lng], MAX_ZOOM_FOCUS, { animate: true });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,9 +284,14 @@ const App: React.FC = () => {
   // --- Animation Loop ---
   useEffect(() => {
     if (isPlaying && currentIndex < points.length - 1) {
+      // 拡大モード時は速度を制限（タイル読み込み対策）
+      const effectiveSpeed = isWideView 
+        ? playbackSpeed 
+        : Math.min(playbackSpeed, maxSpeedFocusMode);
+      
       const step = () => {
         setCurrentIndex(prev => {
-          const next = prev + playbackSpeed;
+          const next = prev + effectiveSpeed;
           if (next >= points.length - 1) { 
             setIsPlaying(false); 
             return points.length - 1; 
@@ -293,7 +310,7 @@ const App: React.FC = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPlaying, points.length, playbackSpeed, currentIndex]);
+  }, [isPlaying, points.length, playbackSpeed, currentIndex, isWideView, maxSpeedFocusMode]);
 
   // --- Keyboard Shortcuts ---
   useEffect(() => {
@@ -388,11 +405,51 @@ const App: React.FC = () => {
       }
     }
     
-    // Auto-panning: only if not in wide view
+    // Auto-panning: only if not in wide view (間引きパン + 長距離即座移動)
     if (isPlaying && !isWideView) {
-      mapInstance.current.panTo([cp.lat, cp.lng], { animate: true, duration: 0.1 });
+      panThrottleRef.current++;
+      const PAN_INTERVAL = 5; // 5フレームに1回パン
+      
+      if (panThrottleRef.current >= PAN_INTERVAL) {
+        panThrottleRef.current = 0;
+        const zoom = mapInstance.current.getZoom();
+        const threshold = getPanThreshold(zoom);
+        const prevPoint = prevPointRef.current;
+        
+        if (prevPoint) {
+          const distance = calculateDistance(prevPoint.lat, prevPoint.lng, cp.lat, cp.lng);
+          
+          if (distance > threshold) {
+            // 長距離移動: アニメーション無しで即座に移動
+            mapInstance.current.setView([cp.lat, cp.lng], zoom, { animate: false });
+          } else {
+            // 通常移動: パン
+            mapInstance.current.panTo([cp.lat, cp.lng], { animate: false });
+          }
+        } else {
+          mapInstance.current.panTo([cp.lat, cp.lng], { animate: false });
+        }
+      }
+      prevPointRef.current = cp;
     }
   }, [currentIndex, points, isWideView, isPlaying]);
+
+  // --- Tile Preloading ---
+  useEffect(() => {
+    if (isPlaying && currentIndex < points.length - 1 && !isWideView && mapInstance.current) {
+      // 先読み: 現在位置から最大50ステップ先のポイントをプリロード
+      const lookAhead = Math.min(playbackSpeed * 10, 50);
+      const futurePoints = points.slice(
+        currentIndex, 
+        Math.min(currentIndex + lookAhead, points.length)
+      );
+      
+      if (futurePoints.length > 0) {
+        const zoom = mapInstance.current.getZoom();
+        preloadTilesForPoints(futurePoints, zoom, mapTheme);
+      }
+    }
+  }, [currentIndex, isPlaying, isWideView, playbackSpeed, points, mapTheme]);
 
   const handleBackToUpload = () => {
     setRawPoints([]);
@@ -549,6 +606,16 @@ const App: React.FC = () => {
         onReset={handleBackToUpload}
         showCoordinates={showCoordinates}
         onCoordinatesToggle={setShowCoordinates}
+        onOpenZoomSettings={() => { setShowSettings(false); setShowZoomSettings(true); }}
+      />
+
+      <ZoomSettingsModal
+        isOpen={showZoomSettings}
+        onClose={() => setShowZoomSettings(false)}
+        focusZoomLevel={focusZoomLevel}
+        onZoomLevelChange={setFocusZoomLevel}
+        maxSpeedFocusMode={maxSpeedFocusMode}
+        onMaxSpeedChange={setMaxSpeedFocusMode}
       />
 
       <HelpModal

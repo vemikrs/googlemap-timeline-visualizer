@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Trash2, Eye, EyeOff } from 'lucide-react';
+import { ChevronDown, Trash2, Eye, EyeOff, ZoomIn, ChevronRight } from 'lucide-react';
 import type { MapTheme } from '../types';
 
 interface SettingsModalProps {
@@ -10,6 +10,7 @@ interface SettingsModalProps {
   onReset: () => void;
   showCoordinates?: boolean;
   onCoordinatesToggle?: (show: boolean) => void;
+  onOpenZoomSettings?: () => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -20,6 +21,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onReset,
   showCoordinates = false,
   onCoordinatesToggle,
+  onOpenZoomSettings,
 }) => {
   if (!isOpen) return null;
 
@@ -38,6 +40,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Scrollable Content with Custom Scrollbar */}
         <div className="overflow-y-auto flex-1 px-5 py-4 custom-scrollbar">
           <div className="space-y-4 text-sm font-medium">
+          
+            {/* Zoom Settings Link */}
+            {onOpenZoomSettings && (
+              <div className="space-y-2">
+                <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
+                  <ZoomIn size={12} />
+                  拡大モード設定
+                </label>
+                <button
+                  onClick={onOpenZoomSettings}
+                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold text-xs transition-all bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 hover:from-blue-100 hover:to-indigo-100 border border-blue-200/50"
+                >
+                  <span className="flex items-center gap-2">
+                    <ZoomIn size={16} />
+                    ズームレベル・速度制限
+                  </span>
+                  <ChevronRight size={16} />
+                </button>
+                <p className="text-[9px] text-gray-400 px-1">
+                  拡大モード時のズームレベルと最大再生速度を調整できます
+                </p>
+              </div>
+            )}
           
             {/* Coordinates Toggle */}
             {onCoordinatesToggle && (
@@ -121,38 +146,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         .custom-scrollbar {
           scrollbar-width: thin;
           scrollbar-color: #3b82f6 transparent;
-        }
-        
-        /* Range Input Styles */
-        .custom-scrollbar input[type='range']::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 18px;
-          height: 18px;
-          background: white;
-          border: 2.5px solid #3b82f6;
-          border-radius: 50%;
-          cursor: pointer;
-          box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
-          transition: all 0.2s;
-        }
-        .custom-scrollbar input[type='range']::-webkit-slider-thumb:hover {
-          transform: scale(1.15);
-          box-shadow: 0 3px 12px rgba(59, 130, 246, 0.5);
-        }
-        .custom-scrollbar input[type='range']::-moz-range-thumb {
-          width: 18px;
-          height: 18px;
-          background: white;
-          border: 2.5px solid #3b82f6;
-          border-radius: 50%;
-          cursor: pointer;
-          box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
-          transition: all 0.2s;
-        }
-        .custom-scrollbar input[type='range']::-moz-range-thumb:hover {
-          transform: scale(1.15);
-          box-shadow: 0 3px 12px rgba(59, 130, 246, 0.5);
         }
       `}</style>
     </div>
