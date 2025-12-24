@@ -32,3 +32,6 @@ dist-ssr
 
 # Auto-generated library copies (built from node_modules)
 public/lib/
+
+# Playwright
+playwright-report/

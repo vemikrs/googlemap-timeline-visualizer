@@ -8,6 +8,8 @@
     "build": "tsc && vite build",
     "build-prod": "bash scripts/build-prod.sh",
     "preview": "vite preview",
+    "test": "playwright test",
+    "test:e2e": "playwright test --headed",
     "postinstall": "node scripts/copy-libs.js"
   },
   "dependencies": {
@@ -18,6 +20,7 @@
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^25.0.3",

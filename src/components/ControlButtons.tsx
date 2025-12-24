@@ -139,6 +139,7 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
             }}
             className="bg-gradient-to-br from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 w-10 h-10 rounded-xl shadow-lg border border-gray-200/50 text-gray-500 active:scale-95 transition-all flex items-center justify-center"
             title="ヘルプ"
+            data-testid="help-button"
           >
             <HelpCircle size={18} />
           </button>
@@ -153,6 +154,7 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
             ? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white border-blue-600/50'
             : 'bg-white/95 backdrop-blur-xl text-gray-700 border-white/50'
         }`}
+        data-testid="menu-toggle"
       >
         {isExpanded ? <X size={18} /> : <Menu size={18} />}
       </button>
