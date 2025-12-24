@@ -23,11 +23,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 全履歴とタグを取得
+          fetch-tags: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -50,6 +53,17 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Generate Build Info
+        id: build-info
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          DATE_JST=$(TZ='Asia/Tokyo' date +%Y%m%d)
+          # CIでは git describe でコミット情報を使用
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          BUILD_INFO="Build: ${VERSION}-${DATE_JST}-${SHORT_SHA}"
+          echo "BUILD_INFO=${BUILD_INFO}" >> $GITHUB_OUTPUT
+          echo "Build info: ${BUILD_INFO}"
 
       - name: Build
         run: pnpm build

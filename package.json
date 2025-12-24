@@ -1,11 +1,12 @@
 {
   "name": "timeline-tracker",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Google Maps Timeline Visualizer",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build-prod": "bash scripts/build-prod.sh",
     "preview": "vite preview",
     "postinstall": "node scripts/copy-libs.js"
   },
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
     "@types/leaflet": "^1.9.21",
+    "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",

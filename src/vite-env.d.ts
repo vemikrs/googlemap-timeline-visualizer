@@ -1,9 +1,5 @@
 /// <reference types="vite/client" />
 
-declare global {
-  interface Window {
-    L: typeof import('leaflet');
-  }
-}
-
-export {};
+// ビルド時に注入されるグローバル定数
+declare const __APP_VERSION__: string;
+declare const __BUILD_INFO__: string;
