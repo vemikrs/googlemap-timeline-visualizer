@@ -3,7 +3,7 @@ import FileUploader from './FileUploader';
 import TimelineControls from './TimelineControls';
 import Header from './Header';
 import ControlButtons from './ControlButtons';
-import type { Point, PrivacyLevelId } from '../types';
+import type { Point } from '../types';
 
 interface ControllerHUDProps {
   points: Point[];
@@ -28,8 +28,6 @@ interface ControllerHUDProps {
   onRecord?: () => void;
   isRecording?: boolean;
   showInitialHints?: boolean;
-  privacyLevel?: PrivacyLevelId;
-  onOpenPrivacySettings?: () => void;
   onLoadDemo?: () => void;
   isDemoLoading?: boolean;
 }
@@ -57,8 +55,6 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
   onRecord,
   isRecording = false,
   showInitialHints = false,
-  privacyLevel = 'none',
-  onOpenPrivacySettings,
   onLoadDemo,
   isDemoLoading = false,
 }) => {
@@ -79,8 +75,6 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
               onRecord={onRecord}
               isRecording={isRecording}
               showInitialMenu={showInitialHints}
-              privacyLevel={privacyLevel}
-              onOpenPrivacySettings={onOpenPrivacySettings}
             />
           </div>
         </div>

@@ -607,6 +607,8 @@ const App: React.FC = () => {
         showCoordinates={showCoordinates}
         onCoordinatesToggle={setShowCoordinates}
         onOpenZoomSettings={() => { setShowSettings(false); setShowZoomSettings(true); }}
+        privacyLevel={privacyLevel}
+        onOpenPrivacySettings={() => { setShowSettings(false); setShowPrivacyModal(true); }}
       />
 
       <ZoomSettingsModal
@@ -667,8 +669,6 @@ const App: React.FC = () => {
         onRecord={handleRecordClick}
         isRecording={recorder.status === 'recording'}
         showInitialHints={showInitialHints}
-        privacyLevel={privacyLevel}
-        onOpenPrivacySettings={() => setShowPrivacyModal(true)}
         onLoadDemo={handleLoadDemo}
         isDemoLoading={isDemoLoading}
       />

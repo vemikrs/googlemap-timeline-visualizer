@@ -1,6 +1,7 @@
 import React from 'react';
-import { ChevronDown, Trash2, Eye, EyeOff, ZoomIn, ChevronRight } from 'lucide-react';
-import type { MapTheme } from '../types';
+import { ChevronDown, Trash2, Eye, EyeOff, ZoomIn, ChevronRight, Shield } from 'lucide-react';
+import type { MapTheme, PrivacyLevelId } from '../types';
+import { PRIVACY_LEVELS } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface SettingsModalProps {
   showCoordinates?: boolean;
   onCoordinatesToggle?: (show: boolean) => void;
   onOpenZoomSettings?: () => void;
+  privacyLevel?: PrivacyLevelId;
+  onOpenPrivacySettings?: () => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -22,6 +25,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   showCoordinates = false,
   onCoordinatesToggle,
   onOpenZoomSettings,
+  privacyLevel = 'none',
+  onOpenPrivacySettings,
 }) => {
   if (!isOpen) return null;
 
@@ -64,11 +69,47 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             )}
           
+            {/* Privacy Level Settings */}
+            {onOpenPrivacySettings && (
+              <div className="space-y-2">
+                <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
+                  <Shield size={12} />
+                  プライバシー（位置丸め）
+                </label>
+                {(() => {
+                  const currentLevel = PRIVACY_LEVELS.find(l => l.id === privacyLevel);
+                  const isEnabled = privacyLevel !== 'none';
+                  return (
+                    <button
+                      onClick={() => { onOpenPrivacySettings(); onClose(); }}
+                      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold text-xs transition-all border ${
+                        isEnabled
+                          ? 'bg-gradient-to-r from-purple-50 to-violet-50 text-purple-600 hover:from-purple-100 hover:to-violet-100 border-purple-200/50'
+                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border-gray-200/50'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Shield size={16} />
+                        <span>
+                          {isEnabled ? `${currentLevel?.label}（${currentLevel?.description}）` : 'OFF（位置情報そのまま）'}
+                        </span>
+                      </span>
+                      <ChevronRight size={16} />
+                    </button>
+                  );
+                })()}
+                <p className="text-[9px] text-gray-400 px-1">
+                  録画や共有時に位置情報をぼかして、住所を特定されにくくします
+                </p>
+              </div>
+            )}
+          
             {/* Coordinates Toggle */}
             {onCoordinatesToggle && (
               <div className="space-y-2">
-                <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-                  プライバシー設定
+                <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
+                  <Eye size={12} />
+                  座標表示
                 </label>
                 <button
                   onClick={() => onCoordinatesToggle(!showCoordinates)}
