@@ -6,7 +6,12 @@ import pkg from './package.json'
 // ビルド番号を生成（タグベースで連番管理）
 function generateBuildNumber(): string {
   const version = pkg.version;
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+  
+  // JST日付を取得（UTC+9）
+  const now = new Date();
+  const jstOffset = 9 * 60; // JST is UTC+9
+  const jst = new Date(now.getTime() + (jstOffset + now.getTimezoneOffset()) * 60000);
+  const today = jst.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD in JST
   
   try {
     // 今日のビルドタグ数をカウント（連番）
