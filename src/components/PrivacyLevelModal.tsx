@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Shield, ShieldCheck, ShieldAlert, ShieldOff } from 'lucide-react';
+import { ChevronDown, Shield, ShieldCheck, ShieldAlert, ShieldOff, ArrowLeft, Settings } from 'lucide-react';
 import { PRIVACY_LEVELS, type PrivacyLevelId } from '../types';
 
 interface PrivacyLevelModalProps {
@@ -7,6 +7,7 @@ interface PrivacyLevelModalProps {
   onClose: () => void;
   currentLevel: PrivacyLevelId;
   onLevelChange: (level: PrivacyLevelId) => void;
+  onBackToSettings?: () => void;
 }
 
 const getShieldIcon = (levelId: string, isActive: boolean) => {
@@ -50,6 +51,7 @@ const PrivacyLevelModal: React.FC<PrivacyLevelModalProps> = ({
   onClose,
   currentLevel,
   onLevelChange,
+  onBackToSettings,
 }) => {
   if (!isOpen) return null;
 
@@ -69,6 +71,17 @@ const PrivacyLevelModal: React.FC<PrivacyLevelModalProps> = ({
       <div className="bg-white w-full max-w-sm rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Fixed Header */}
         <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100 shrink-0">
+          {onBackToSettings ? (
+            <button
+              onClick={onBackToSettings}
+              className="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <ArrowLeft size={18} />
+              <Settings size={16} />
+            </button>
+          ) : (
+            <div />
+          )}
           <div className="flex items-center gap-2">
             <Shield size={18} className="text-blue-500" />
             <h2 className="font-black text-base sm:text-lg text-gray-800">プライバシー設定</h2>

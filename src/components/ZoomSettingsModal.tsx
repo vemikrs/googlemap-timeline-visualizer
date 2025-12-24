@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, ZoomIn, Gauge, RotateCcw } from 'lucide-react';
+import { ChevronDown, ZoomIn, Gauge, RotateCcw, ArrowLeft, Settings } from 'lucide-react';
 
 interface ZoomSettingsModalProps {
   isOpen: boolean;
@@ -8,6 +8,7 @@ interface ZoomSettingsModalProps {
   onZoomLevelChange: (zoom: number) => void;
   maxSpeedFocusMode: number;
   onMaxSpeedChange: (speed: number) => void;
+  onBackToSettings?: () => void;
 }
 
 const ZoomSettingsModal: React.FC<ZoomSettingsModalProps> = ({
@@ -17,6 +18,7 @@ const ZoomSettingsModal: React.FC<ZoomSettingsModalProps> = ({
   onZoomLevelChange,
   maxSpeedFocusMode,
   onMaxSpeedChange,
+  onBackToSettings,
 }) => {
   if (!isOpen) return null;
 
@@ -47,6 +49,17 @@ const ZoomSettingsModal: React.FC<ZoomSettingsModalProps> = ({
       <div className="bg-white w-full max-w-sm rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Fixed Header */}
         <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100 shrink-0">
+          {onBackToSettings ? (
+            <button
+              onClick={onBackToSettings}
+              className="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <ArrowLeft size={18} />
+              <Settings size={16} />
+            </button>
+          ) : (
+            <div />
+          )}
           <h2 className="font-black text-lg sm:text-xl text-gray-800 flex items-center gap-2">
             <ZoomIn size={20} className="text-blue-500" />
             拡大モード設定

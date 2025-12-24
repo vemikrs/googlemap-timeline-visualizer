@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Map as LeafletMap, Polyline, Marker } from 'leaflet';
-import type { Point, MapTheme, PrivacyLevelId } from './types';
-import { obfuscatePoints, PRIVACY_LEVELS } from './types';
+import type { Map as LeafletMap, Polyline, Marker, LatLngBounds } from 'leaflet';
+import type { Point, MapTheme, PrivacyLevelId, RegionPresetId } from './types';
+import { obfuscatePoints, PRIVACY_LEVELS, REGION_PRESETS } from './types';
 import { processData } from './utils/dataProcessor';
 import { loadLeaflet, getTileLayerUrl, preloadTilesForPoints, calculateDistance, getPanThreshold } from './utils/mapHelpers';
 import SettingsModal from './components/SettingsModal';
@@ -15,6 +15,8 @@ import HelpModal from './components/HelpModal';
 import PrivacyLevelModal from './components/PrivacyLevelModal';
 import RecordingPrivacyPrompt from './components/RecordingPrivacyPrompt';
 import ZoomSettingsModal from './components/ZoomSettingsModal';
+import RegionSettingsModal from './components/RegionSettingsModal';
+import MiniMap from './components/MiniMap';
 import { useVideoRecorder } from './hooks/useVideoRecorder';
 
 /**
@@ -54,6 +56,9 @@ const App: React.FC = () => {
   const [focusZoomLevel, setFocusZoomLevel] = useState<number>(DEFAULT_ZOOM_FOCUS);
   const [maxSpeedFocusMode, setMaxSpeedFocusMode] = useState<number>(DEFAULT_MAX_SPEED_FOCUS);
   const [showZoomSettings, setShowZoomSettings] = useState<boolean>(false);
+  const [regionPreset, setRegionPreset] = useState<RegionPresetId>('auto');
+  const [dataBounds, setDataBounds] = useState<LatLngBounds | null>(null);
+  const [showRegionSettings, setShowRegionSettings] = useState<boolean>(false);
   
   // Privacy Level State
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevelId>('none');
@@ -131,18 +136,42 @@ const App: React.FC = () => {
     updateTileLayer();
   }, [mapTheme]);
 
+  // --- Calculate Data Bounds ---
+  const calculateBounds = (pts: Point[]): LatLngBounds | null => {
+    if (!window.L || pts.length === 0) return null;
+    const L = window.L;
+    const validPoints = pts.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+    if (validPoints.length === 0) return null;
+    
+    const latlngs = validPoints.map(p => L.latLng(p.lat, p.lng));
+    return L.latLngBounds(latlngs);
+  };
+
   // --- Wide View Mode Logic ---
   useEffect(() => {
     if (!mapInstance.current || !points.length) return;
     if (isWideView) {
-      mapInstance.current.setView([36.2048, 138.2529], DEFAULT_ZOOM_WIDE, { animate: true });
+      // 地域プリセットに基づいて表示
+      if (regionPreset === 'auto' && dataBounds) {
+        // 自動: データ範囲にフィット
+        mapInstance.current.fitBounds(dataBounds, { padding: [30, 30], animate: true });
+      } else {
+        // プリセット指定: プリセットの中心とズームを使用
+        const preset = REGION_PRESETS.find(p => p.id === regionPreset) || REGION_PRESETS[1]; // fallback to Japan
+        if (regionPreset === 'auto') {
+          // autoでboundsがない場合は日本をフォールバック
+          mapInstance.current.setView([36.2048, 138.2529], DEFAULT_ZOOM_WIDE, { animate: true });
+        } else {
+          mapInstance.current.setView(preset.center, preset.zoom, { animate: true });
+        }
+      }
     } else if (currentIndex < points.length) {
       const cp = points[currentIndex];
       if (cp) {
         mapInstance.current.setView([cp.lat, cp.lng], focusZoomLevel, { animate: true });
       }
     }
-  }, [isWideView, points.length, currentIndex, focusZoomLevel]);
+  }, [isWideView, points.length, currentIndex, focusZoomLevel, regionPreset, dataBounds]);
 
   // --- Helper Functions ---
   const focusOnCurrent = () => {
@@ -153,9 +182,24 @@ const App: React.FC = () => {
     mapInstance.current.setView([cp.lat, cp.lng], MAX_ZOOM_FOCUS, { animate: true });
   };
 
+  // 設定をリセット（データは保持）
+  const resetSettings = () => {
+    setMapTheme('light');
+    setShowCoordinates(false);
+    setFocusZoomLevel(DEFAULT_ZOOM_FOCUS);
+    setMaxSpeedFocusMode(DEFAULT_MAX_SPEED_FOCUS);
+    setPrivacyLevel('none');
+    setRegionPreset('auto');
+    setPlaybackSpeed(5);
+    setIsWideView(true);
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // 新しいファイル読み込み時に設定をリセット
+    resetSettings();
     
     setIsProcessing(true); 
     setProgress(5); 
@@ -190,6 +234,9 @@ const App: React.FC = () => {
 
   // --- Demo Mode Handler ---
   const handleLoadDemo = async () => {
+    // デモ読み込み時に設定をリセット
+    resetSettings();
+    
     setIsDemoLoading(true);
     setErrorMsg(null);
     setProgress(5);
@@ -275,6 +322,10 @@ const App: React.FC = () => {
     setPoints(obfuscated);
     setCurrentIndex(0);
     setIsPlaying(false);
+    
+    // Calculate bounds for the filtered data
+    const bounds = calculateBounds(obfuscated);
+    setDataBounds(bounds);
     
     if (obfuscated.length > 0 && mapInstance.current && !isWideView) {
       mapInstance.current.setView([obfuscated[0].lat, obfuscated[0].lng], 12);
@@ -573,6 +624,17 @@ const App: React.FC = () => {
         {/* Map Container */}
         <div ref={mapRef} className="flex-1 relative z-0" />
         
+        {/* MiniMap - 追従モード時のみ表示 */}
+        {points.length > 0 && !isWideView && (
+          <MiniMap
+            points={points}
+            currentIndex={currentIndex}
+            bounds={dataBounds}
+            mapTheme={mapTheme}
+            isVisible={!isWideView}
+          />
+        )}
+        
         {/* Recording Overlay */}
         <RecordingOverlay
           isRecording={recorder.status === 'recording'}
@@ -604,11 +666,14 @@ const App: React.FC = () => {
         mapTheme={mapTheme}
         onThemeChange={setMapTheme}
         onReset={handleBackToUpload}
+        onResetSettings={resetSettings}
         showCoordinates={showCoordinates}
         onCoordinatesToggle={setShowCoordinates}
         onOpenZoomSettings={() => { setShowSettings(false); setShowZoomSettings(true); }}
         privacyLevel={privacyLevel}
         onOpenPrivacySettings={() => { setShowSettings(false); setShowPrivacyModal(true); }}
+        regionPreset={regionPreset}
+        onOpenRegionSettings={() => { setShowSettings(false); setShowRegionSettings(true); }}
       />
 
       <ZoomSettingsModal
@@ -618,6 +683,15 @@ const App: React.FC = () => {
         onZoomLevelChange={setFocusZoomLevel}
         maxSpeedFocusMode={maxSpeedFocusMode}
         onMaxSpeedChange={setMaxSpeedFocusMode}
+        onBackToSettings={() => { setShowZoomSettings(false); setShowSettings(true); }}
+      />
+
+      <RegionSettingsModal
+        isOpen={showRegionSettings}
+        onClose={() => setShowRegionSettings(false)}
+        regionPreset={regionPreset}
+        onRegionPresetChange={setRegionPreset}
+        onBackToSettings={() => { setShowRegionSettings(false); setShowSettings(true); }}
       />
 
       <HelpModal
@@ -630,6 +704,7 @@ const App: React.FC = () => {
         onClose={() => setShowPrivacyModal(false)}
         currentLevel={privacyLevel}
         onLevelChange={setPrivacyLevel}
+        onBackToSettings={() => { setShowPrivacyModal(false); setShowSettings(true); }}
       />
 
       <RecordingPrivacyPrompt

@@ -1,7 +1,7 @@
 import React from 'react';
-import { ChevronDown, Trash2, Eye, EyeOff, ZoomIn, ChevronRight, Shield } from 'lucide-react';
-import type { MapTheme, PrivacyLevelId } from '../types';
-import { PRIVACY_LEVELS } from '../types';
+import { ChevronDown, Trash2, Eye, EyeOff, ZoomIn, ChevronRight, Shield, Globe, RotateCcw } from 'lucide-react';
+import type { MapTheme, PrivacyLevelId, RegionPresetId } from '../types';
+import { PRIVACY_LEVELS, REGION_PRESETS } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -9,11 +9,14 @@ interface SettingsModalProps {
   mapTheme: MapTheme;
   onThemeChange: (theme: MapTheme) => void;
   onReset: () => void;
+  onResetSettings?: () => void;
   showCoordinates?: boolean;
   onCoordinatesToggle?: (show: boolean) => void;
   onOpenZoomSettings?: () => void;
   privacyLevel?: PrivacyLevelId;
   onOpenPrivacySettings?: () => void;
+  regionPreset?: RegionPresetId;
+  onOpenRegionSettings?: () => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -22,11 +25,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   mapTheme,
   onThemeChange,
   onReset,
+  onResetSettings,
   showCoordinates = false,
   onCoordinatesToggle,
   onOpenZoomSettings,
   privacyLevel = 'none',
   onOpenPrivacySettings,
+  regionPreset = 'auto',
+  onOpenRegionSettings,
 }) => {
   if (!isOpen) return null;
 
@@ -155,7 +161,63 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
 
-            {/* Reset Button */}
+            {/* Region Preset Selection */}
+            {onOpenRegionSettings && (
+              <div className="space-y-2">
+                <label className="text-gray-400 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
+                  <Globe size={12} />
+                  広域モードの表示範囲
+                </label>
+                {(() => {
+                  const currentPreset = REGION_PRESETS.find(p => p.id === regionPreset);
+                  const getEmoji = (id: string) => {
+                    switch (id) {
+                      case 'auto': return '🎯';
+                      case 'japan': return '🇯🇵';
+                      case 'asia': return '🌏';
+                      case 'europe': return '🇪🇺';
+                      case 'north-america': return '🇺🇸';
+                      case 'world': return '🌍';
+                      default: return '📍';
+                    }
+                  };
+                  return (
+                    <button
+                      onClick={() => { onOpenRegionSettings(); onClose(); }}
+                      className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold text-xs transition-all bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-600 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200/50"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">{getEmoji(regionPreset)}</span>
+                        <span>{currentPreset?.label || '自動'}</span>
+                      </span>
+                      <ChevronRight size={16} />
+                    </button>
+                  );
+                })()}
+                <p className="text-[9px] text-gray-400 px-1">
+                  {regionPreset === 'auto' 
+                    ? '読み込んだデータの範囲に自動でフィットします' 
+                    : '広域モード時に選択した地域を中心に表示します'}
+                </p>
+              </div>
+            )}
+
+            {/* Reset Settings Button */}
+            {onResetSettings && (
+              <div className="pt-2 border-t border-gray-100">
+                <button 
+                  onClick={onResetSettings} 
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-gray-50 text-gray-600 font-bold rounded-xl text-xs hover:bg-gray-100 transition-colors"
+                >
+                  <RotateCcw size={14} /> 設定をリセット
+                </button>
+                <p className="text-[9px] text-gray-400 px-1 mt-1 text-center">
+                  全ての設定を初期値に戻します（データは保持）
+                </p>
+              </div>
+            )}
+
+            {/* Reset Data Button */}
             <div className="pt-2 border-t border-gray-100">
               <button 
                 onClick={onReset} 
