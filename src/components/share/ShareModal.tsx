@@ -159,17 +159,17 @@ const ShareModal: React.FC<ShareModalProps> = ({
   }, []);
 
   const handleTwitterShare = useCallback(() => {
-    shareToTwitter(shareText, generateShareUrl({ demo: true }));
+    shareToTwitter(shareText, generateShareUrl());
     showSuccessMessage('twitter');
   }, [shareText, showSuccessMessage]);
 
   const handleFacebookShare = useCallback(() => {
-    shareToFacebook(generateShareUrl({ demo: true }));
+    shareToFacebook(generateShareUrl());
     showSuccessMessage('facebook');
   }, [showSuccessMessage]);
 
   const handleLineShare = useCallback(() => {
-    shareToLine(shareText, generateShareUrl({ demo: true }));
+    shareToLine(shareText, generateShareUrl());
     showSuccessMessage('line');
   }, [shareText, showSuccessMessage]);
 
@@ -179,12 +179,12 @@ const ShareModal: React.FC<ShareModalProps> = ({
     if (shareImage && canShareFiles()) {
       files.push(new File([shareImage], 'timeline-share.jpg', { type: 'image/jpeg' }));
     }
-    const success = await shareNative('Timeline Visualizer', shareText, generateShareUrl({ demo: true }), files);
+    const success = await shareNative('Timeline Visualizer', shareText, generateShareUrl(), files);
     if (success) showSuccessMessage('native');
   }, [shareImage, shareText, showSuccessMessage]);
 
   const handleCopyText = useCallback(async () => {
-    const success = await copyToClipboard(`${shareText}\n\n${generateShareUrl({ demo: true })}`);
+    const success = await copyToClipboard(`${shareText}\n\n${generateShareUrl()}`);
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

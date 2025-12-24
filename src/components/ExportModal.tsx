@@ -70,7 +70,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
     }
   };
 
-  const shareUrl = generateShareUrl({ demo: true });
+  const shareUrl = generateShareUrl();
   const shareText = 'タイムラインを動画にしてみた！ #TimelineVisualizer #GoogleMap';
 
   const handleCopyUrl = async () => {

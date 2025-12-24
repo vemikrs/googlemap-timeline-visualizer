@@ -185,7 +185,7 @@ export function generateShareText(stats: TimelineStats, yearRange?: { start: num
     : '';
 
   const lines = [
-    yearText ? `${yearText}の移動履歴を可視化してみた！` : '移動履歴を可視化してみた！',
+    yearText ? `${yearText}の移動履歴をタイムライン再生 ▶` : '移動履歴をタイムライン再生 ▶',
     `📍 ${formatLargeNumber(stats.totalPoints)}ポイント`,
     `🚗 ${formatDistance(stats.totalDistance)}移動`,
   ];
