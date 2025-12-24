@@ -31,6 +31,7 @@ interface ControllerHUDProps {
   showInitialHints?: boolean;
   onLoadDemo?: () => void;
   isDemoLoading?: boolean;
+  onOpenDiagnostics?: () => void;
 }
 
 const ControllerHUD: React.FC<ControllerHUDProps> = ({
@@ -59,6 +60,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
   showInitialHints = false,
   onLoadDemo,
   isDemoLoading = false,
+  onOpenDiagnostics,
 }) => {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-[1000] p-2 sm:p-3 flex flex-col pointer-events-none pb-6">
@@ -93,6 +95,7 @@ const ControllerHUD: React.FC<ControllerHUDProps> = ({
             onOpenHelp={onOpenHelp}
             onLoadDemo={onLoadDemo}
             isDemoLoading={isDemoLoading}
+            onOpenDiagnostics={onOpenDiagnostics}
           />
         ) : (
           <TimelineControls

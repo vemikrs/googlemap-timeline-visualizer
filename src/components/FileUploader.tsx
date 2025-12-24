@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, AlertCircle, HelpCircle, Play } from 'lucide-react';
+import { Upload, AlertCircle, HelpCircle, Play, FileSearch } from 'lucide-react';
 
 interface FileUploaderProps {
   isProcessing: boolean;
@@ -9,6 +9,7 @@ interface FileUploaderProps {
   onOpenHelp?: () => void;
   onLoadDemo?: () => void;
   isDemoLoading?: boolean;
+  onOpenDiagnostics?: () => void;
 }
 
 const FileUploader: React.FC<FileUploaderProps> = ({
@@ -19,13 +20,27 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   onOpenHelp,
   onLoadDemo,
   isDemoLoading,
+  onOpenDiagnostics,
 }) => {
   return (
     <>
       {errorMsg && (
-        <div className="mb-4 p-3 bg-red-50 rounded-2xl border border-red-100 flex items-start gap-2 animate-in fade-in">
-          <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-          <p className="text-[11px] text-red-500 font-bold">{errorMsg}</p>
+        <div className="mb-4 p-3 bg-red-50 rounded-2xl border border-red-100 animate-in fade-in">
+          <div className="flex items-start gap-2">
+            <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-[11px] text-red-500 font-bold">{errorMsg}</p>
+              {onOpenDiagnostics && (
+                <button
+                  onClick={onOpenDiagnostics}
+                  className="mt-2 flex items-center gap-1.5 text-[10px] text-orange-600 hover:text-orange-700 font-bold transition-colors"
+                >
+                  <FileSearch size={14} />
+                  <span>診断レポートを生成して報告</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

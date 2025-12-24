@@ -18,6 +18,7 @@ import RecordingPrivacyPrompt from './components/RecordingPrivacyPrompt';
 import ZoomSettingsModal from './components/ZoomSettingsModal';
 import RegionSettingsModal from './components/RegionSettingsModal';
 import MiniMap from './components/MiniMap';
+import DiagnosticsModal from './components/DiagnosticsModal';
 import { ShareModal, StatsCard } from './components/share';
 import { useVideoRecorder } from './hooks/useVideoRecorder';
 import { useShareableState } from './hooks/useShareableState';
@@ -70,6 +71,7 @@ const App: React.FC = () => {
   // Share Modal State
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [showStats, setShowStats] = useState<boolean>(false);
+  const [showDiagnostics, setShowDiagnostics] = useState<boolean>(false);
   
   // Privacy Level State
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevelId>('none');
@@ -746,6 +748,12 @@ const App: React.FC = () => {
       <HelpModal
         isOpen={showHelp}
         onClose={() => setShowHelp(false)}
+        onOpenDiagnostics={() => { setShowHelp(false); setShowDiagnostics(true); }}
+      />
+
+      <DiagnosticsModal
+        isOpen={showDiagnostics}
+        onClose={() => setShowDiagnostics(false)}
       />
 
       <PrivacyLevelModal
@@ -796,6 +804,7 @@ const App: React.FC = () => {
         showInitialHints={showInitialHints}
         onLoadDemo={handleLoadDemo}
         isDemoLoading={isDemoLoading}
+        onOpenDiagnostics={() => setShowDiagnostics(true)}
       />
 
       {/* FFmpeg Download Modal */}
