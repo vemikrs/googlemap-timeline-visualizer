@@ -44,9 +44,11 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: {
-            // ffmpeg関連は別チャンクに分離（遅延ロード用）
-            'ffmpeg': ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+          // rolldown (used by this environment) expects `manualChunks` to be a function.
+          // Return the chunk name for module ids we want to group.
+          manualChunks(id: string) {
+            if (id.includes('@ffmpeg/ffmpeg') || id.includes('@ffmpeg/util')) return 'ffmpeg';
+            return undefined;
           },
         },
       },
