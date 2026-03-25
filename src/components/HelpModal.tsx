@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Github, FileText, Shield, Scale, ExternalLink, Twitter, ChevronRight, FileSearch, Bug } from 'lucide-react';
+import { ChevronDown, GitBranch, FileText, Shield, Scale, ExternalLink, AtSign, ChevronRight, FileSearch, Bug } from 'lucide-react';
 import LegalModal from './LegalModal';
 
 type LegalPage = 'terms' | 'privacy' | 'license';
@@ -98,7 +98,7 @@ const HelpModal: React.FC<HelpModalProps> = ({
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
                   >
-                    <Github size={18} />
+                    <GitBranch size={18} />
                     <span className="text-xs font-bold">GitHub で公開中</span>
                     <ExternalLink size={12} className="text-gray-400" />
                   </a>
@@ -152,7 +152,7 @@ const HelpModal: React.FC<HelpModalProps> = ({
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-[10px] hover:text-blue-500 transition-colors"
                     >
-                      <Twitter size={12} />
+                      <AtSign size={12} />
                       <span>@vemikrs</span>
                     </a>
                   </div>

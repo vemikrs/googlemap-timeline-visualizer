@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, FileText, Shield, Scale, Github, ExternalLink } from 'lucide-react';
+import { ChevronLeft, FileText, Shield, Scale, GitBranch, ExternalLink } from 'lucide-react';
 
 type LegalPage = 'terms' | 'privacy' | 'license';
 
@@ -327,7 +327,7 @@ const LicenseContent: React.FC = () => (
         rel="noopener noreferrer"
         className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
       >
-        <Github size={16} />
+        <GitBranch size={16} />
         <span className="text-xs font-bold">ソースコードを見る</span>
         <ExternalLink size={12} />
       </a>
