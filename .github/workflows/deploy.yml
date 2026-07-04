@@ -80,11 +80,34 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry_1.outputs.page_url || steps.deployment_retry_2.outputs.page_url }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: build
     steps:
+      # actions/deploy-pages occasionally fails with a transient
+      # "Deployment failed, try again later." error from the GitHub Pages
+      # backend. Retry a couple of times before giving up.
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Wait before retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 15
+
+      - name: Deploy to GitHub Pages (retry 1/2)
+        id: deployment_retry_1
+        if: steps.deployment.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Wait before retry
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry_1.outcome == 'failure'
+        run: sleep 15
+
+      - name: Deploy to GitHub Pages (retry 2/2)
+        id: deployment_retry_2
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry_1.outcome == 'failure'
         uses: actions/deploy-pages@v5
